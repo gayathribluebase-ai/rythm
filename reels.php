@@ -60,9 +60,14 @@ include("includes/header.php");
                     <i class="fa-regular fa-heart fs-4"></i>
                 </button>
                 <?php
-                $like_stmt = $con->prepare("SELECT SUM(likestatus) FROM `posters` WHERE id=?");
+                $like_stmt = $con->prepare("
+                    SELECT COUNT(*)
+                    FROM poster_likes
+                    WHERE post_id = ?
+                    AND like_status = 1
+                    ");
                 $like_stmt->execute([$post_id]);
-                $likecount = intval($like_stmt->fetchColumn() ?? 0);
+                $likecount = $like_stmt->fetchColumn();
                 ?>
                 <small class="d-block fw-bold" id="like-count-<?php echo $post_id; ?>"><?php echo $likecount; ?></small>
             </div>

@@ -37,8 +37,13 @@ $user_name = $_SESSION['user_name'] ?? 'Guest';
     <header class="navbar-custom d-flex align-items-center px-4 sticky-top">
         <div class="welcome-txt">Welcome!</div>
         <div class="search-box mx-auto d-none d-md-block">
-            <input type="text" placeholder="Search users or music...">
+        <input 
+            type = "text" 
+            id = "mainSearch" 
+            placeholder = "Search users or music..." 
+            autocomplete = "off"> 
         </div>
+
         <div class="d-flex align-items-center gap-3">
             <span class="fw-bold d-none d-sm-inline"><?php echo htmlspecialchars($user_name); ?></span>
             <button class="btn btn-logout" onclick="location.href='/rythm/logout.php'">
@@ -50,3 +55,30 @@ $user_name = $_SESSION['user_name'] ?? 'Guest';
     <div class="app-wrapper">
         <?php include_once(__DIR__ . "/sidebar.php"); ?>
         <main class="main-content">
+
+
+<script>
+$(document).ready(function () {
+
+    $('#mainSearch').on('keypress', function (e) {
+
+        if (e.which === 13) {
+
+            let searchTerm = $(this).val().trim();
+
+            if (searchTerm === '') {
+                return;
+            }
+
+            window.location.href =
+                '/rythm/search_results.php?searchTerm=' +
+                encodeURIComponent(searchTerm);
+        }
+
+    });
+
+});
+</script>    
+
+</body>
+</html>

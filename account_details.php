@@ -264,7 +264,7 @@ require("connect.php");
 
     //get followers count /////
 
-    $getcntfollowing = $con->query("SELECT SUM(user_id) as followingcount FROM `following_details` WHERE role_master_id='$rolemaster_id' and following_sts='1'");
+    $getcntfollowing = $con->query("SELECT COUNT(*) as followingcount FROM `following_details` WHERE follower_id='$rolemaster_id' AND following_sts='1'");
     $getdata = $getcntfollowing->fetch(PDO::FETCH_ASSOC);
     ?>
     <div class="container-profile">
@@ -312,8 +312,7 @@ require("connect.php");
         <div id="posts" style="display: block; overflow-x: auto;">
             <div class="post-container" style="">
                 <?php
-                $getposts = $con->query("SELECT * FROM `posters` WHERE post_type='image' AND status='1'");
-                $count2 = 0; // Initialize counter
+                $getposts = $con->query("SELECT * FROM `posters` WHERE username_id='$rolemaster_id' AND post_type='image' AND status='1'");                $count2 = 0; // Initialize counter
                 $dyn = 0;
                 while ($getallposters = $getposts->fetch(PDO::FETCH_ASSOC)) {
                     $now = time();

@@ -269,12 +269,19 @@ function showMuteOverlay(container, text) {
 }
 </script>
 <script>
+    
     let currentPostId = null;
     let shareModal = null;
 
     $(document).ready(function() {
-        shareModal = new bootstrap.Modal(document.getElementById('shareModal'));
+
+    shareModal = new bootstrap.Modal(document.getElementById('shareModal'));
+
+    $('#userSearch').on('keyup', function () {
+        alert('typing');
     });
+
+});
 
     function openCommentModal(postId, dynId) {
         currentPostId = postId;
@@ -366,10 +373,17 @@ function showMuteOverlay(container, text) {
         });
     });
 
-    $('#userSearch').on('keyup', function() {
-        const value = $(this).val().toLowerCase();
-        $("#shareUserList .d-flex").filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    $('#userSearch').on('keyup', function () {
+    let value = $(this).val().toLowerCase();
+
+    $('#shareUserList > div').each(function () {
+        let userText = $(this).text().toLowerCase();
+
+            if (userText.indexOf(value) > -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
         });
     });
 
