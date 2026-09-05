@@ -95,6 +95,20 @@ $(document).on('click', '.follow-suggest-btn', function() {
     object-fit: cover;
 }
 
+.suggestion-list {
+    max-height: 420px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.suggestion-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.suggestion-list::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+
 .suggestion-item {
     transition: 0.2s ease;
 }

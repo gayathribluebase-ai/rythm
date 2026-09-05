@@ -75,55 +75,20 @@ $users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
 // ---------------------------------------------------------
 // Search users/posts
 // ---------------------------------------------------------
-try {
 
-    $stmt = $con->prepare("
-        SELECT
-            p.*,
+$search = "%" . $searchTerm . "%";
 
-            um.user_name AS searched_user_name,
-            um.profile_img AS searched_profile_img
 
-        FROM posters AS p
+$userStmt = $con->prepare("
+    SELECT *
+    FROM user_master
+    WHERE user_name LIKE ?
+");
 
-        LEFT JOIN user_master AS um
-            ON um.id = p.username_id
+$userStmt->execute([$search]);
+$users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        WHERE p.status = 1
-
-        AND (
-            um.user_name LIKE ?
-            OR p.username LIKE ?
-            OR p.posters_caption LIKE ?
-            OR p.posters_hashtag LIKE ?
-        )
-
-        ORDER BY p.id DESC
-    ");
-
-    $stmt->execute([
-        $search,
-        $search,
-        $search,
-        $search
-    ]);
-
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-
-    die("
-        <div style='
-            padding:30px;
-            font-family:Arial;
-            color:red;
-            background:#fff;
-        '>
-            <h3>Database Error</h3>
-            <p>" . htmlspecialchars($e->getMessage()) . "</p>
-        </div>
-    ");
-}
+$results = [];
 
 
 // ---------------------------------------------------------
@@ -285,13 +250,12 @@ if (!empty($users)) {
             $profile_img = $user['profile_img'] ?? '';
 
             if (empty($profile_img)) {
-                $profile_img = '/rythm/assets/images/default-profile.png';
+                $profile_img = '/rythm/assets/profile.png';
             }
 
-            $searched_user_name = $user['user_name'] ?? '';
-        ?>
-
-            <div
+$searched_user_name = $user['user_name'] ?? '';
+?>
+<div
     class="search-user"
     style="cursor: pointer;"
     onclick="window.location.href='/rythm/account_details.php?id=<?php echo (int)$user['users_id']; ?>';"
@@ -301,7 +265,7 @@ if (!empty($users)) {
         src="<?php echo search_escape($profile_img); ?>"
         class="search-profile-img"
         alt="Profile"
-        onerror="this.src='/rythm/assets/images/default-profile.png';"
+        onerror="this.src='/rythm/assets/profile.png';"
     >
 
     <div class="search-user-name">

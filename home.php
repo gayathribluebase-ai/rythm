@@ -17,7 +17,54 @@ $rolemaster_id = $_SESSION['role_master_id'];
 include("includes/header.php");
 ?>
 
-<div class="feed-area">
+<style>
+
+.home-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.feed-area {
+    min-width: 0;
+    width: 100%;
+}
+
+.home-suggestions {
+    width: 320px;
+    position: sticky;
+    top: 90px;
+}
+
+#centerconteid {
+    width: 100%;
+    display: block !important;
+    text-align: left !important;
+}
+
+@media (max-width: 900px) {
+
+    .home-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .home-suggestions {
+        width: 100%;
+        position: static;
+    }
+
+}
+
+</style>
+
+<div class="home-layout">
+
+    <div class="feed-area" id="centerconteid">
+
     <?php
     try {
         // Fetch All Posts
@@ -156,8 +203,11 @@ include("includes/header.php");
     ?>
 </div>
 
-<!-- Right Notification Panel -->
-<?php include("includes/right_panel.php"); ?>
+<div class="home-suggestions">
+    <?php include("includes/right_panel.php"); ?>
+</div>
+
+</div>
 
 <!-- Comment Modal Overlay -->
 <div id="commentModal" class="modal fade" tabindex="-1">
@@ -220,7 +270,29 @@ include("includes/header.php");
                     <?php endwhile; ?>
                 </div>
                 <div class="px-3 py-2 border-top">
-                    <textarea id="shareComment" class="form-control border-0 bg-light rounded-3 small" placeholder="Write a message..." rows="2"></textarea>
+                    <textarea id="shareComment" class="form-control border-0 bg-light rounded-3 small" placeholder="Write a message..." rows="2">
+    $('#searchResultsDropdown').hide();
+    $('#mainSearch').val('');
+
+    $.ajax({
+        type: 'GET',
+        url: '/rythm/account_details.php',
+        data: {
+            id: userId
+        },
+        success: function(response) {
+
+            $('#centerconteid').html(response);
+
+        },
+        error: function(xhr, status, error) {
+
+            console.log('Profile loading failed:', error);
+            console.log(xhr.responseText);
+
+        }
+    });
+}holder="Write a message..." rows="2"></textarea>
                 </div>
             </div>
             <div class="modal-footer border-0 p-3">

@@ -17,21 +17,30 @@ require("connect.php");
 <body>
     <style>
         .container-profile {
-            margin-left: 500px;
-            margin-top: 105px;
+            width: 100% !important;
+            max-width: 500px !important;
+            margin: 20px 0 !important;
+            padding: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start !important;
+            gap: 15px;
+            position: relative;
+            left: -180px;
         }
 
         .profile-header {
             display: flex;
             align-items: center;
-            margin-bottom: 30px;
+            justify-content: flex-start !important;
+            width: 100%;
         }
 
         .profile-img {
-            width: 150px;
-            height: 150px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
-            margin-right: 30px;
+            margin-right: 15px;
         }
 
         .profile-info {
@@ -40,7 +49,7 @@ require("connect.php");
 
         .profile-info h1 {
             margin: 0;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
         }
 
@@ -49,7 +58,7 @@ require("connect.php");
         }
 
         .counts span {
-            margin-right: 20px;
+            margin-right: 10px;
             font-size: 14px;
         }
 
