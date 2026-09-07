@@ -106,7 +106,7 @@ for ($i = 1; $i <= $projectsdyid; $i++) {
 if ($upd) {
 	$updatesql = $con->query("update `user_master` set name='$firstname',last_name='$lastname',email='$email',mobile_no='$contact',profile_update_status=1,location='$location',admin_status=1 where id='$users_id'");
 	if ($updatesql) {
-		echo "<script>alert('profile update successfully!')</script>";
+		echo "<script>alert('profile updated successfully!')</script>";
 		echo "<script>window.location.href='../home.php'</script>";
 	} else {
 		echo "<script>alert('SomethingWent Wrong!')</script>";

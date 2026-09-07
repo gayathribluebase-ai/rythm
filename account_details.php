@@ -17,16 +17,15 @@ require("connect.php");
 <body>
     <style>
         .container-profile {
-            width: 100% !important;
-            max-width: 500px !important;
-            margin: 20px 0 !important;
+            width: 650px !important;
+            max-width: 650px !important;
+            margin: -25px 0 30px 0 !important;
             padding: 0 !important;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start !important;
-            gap: 15px;
+            display: flex !important;
+            align-items: center !important;
+            gap: 30px;
             position: relative;
-            left: -180px;
+            left: -280px;
         }
 
         .profile-header {
@@ -54,12 +53,20 @@ require("connect.php");
         }
 
         .counts {
-            margin-top: 10px;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 25px !important;
+
+            margin-top: 15px !important;
+
+            white-space: nowrap !important;
         }
 
         .counts span {
-            margin-right: 10px;
-            font-size: 14px;
+            margin-right: 0 !important;
+            font-size: 18px !important;
+            white-space: nowrap !important
         }
 
         .navigation {
@@ -121,25 +128,39 @@ require("connect.php");
         }
 
         .labels {
-            display: flex;
-            justify-content: flex-start;
-            width: 100%;
-            overflow-x: auto;
-            overflow-y: hidden;
-            white-space: nowrap;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+
+            width: 650px !important;
+            max-width: 650px !important;
+
+            margin: 25px 0 0 -250px !important;
             padding: 10px 0;
-            z-index: 1;
-            gap: 180px;
+
+            border-top: 1px solid #f5b6cc;
+            border-bottom: 1px solid #f5b6cc;
+
+            overflow: visible !important;
         }
 
         /* Style for the label buttons */
         .label-btn {
+            flex: 1 1 33.333% !important;
+            width: 33.333% !important;
+            min-width: 0 !important;
+
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
             background: none;
             border: none;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 10px 20px;
-            transition: background-color 0.3s ease;
+
+            font-size: 14px;
+            padding: 12px 5px;
+
+            white-space: nowrap !important;
         }
 
         .label-btn:hover {
@@ -173,16 +194,16 @@ require("connect.php");
         .modal_hidden {
             display: none;
             position: fixed;
-            top: 30%;
-            left: 20%;
-            transform: translate(-50%, -50%);
+            top: 20%;
+            left: 0%;
             background-color: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
             z-index: 9999;
-            width: 350px;
-            height: 300px;
+            width: 250px;
+            height: 200px;
+            box-sizing: border-box;
         }
 
         .modal-label {
@@ -245,9 +266,106 @@ require("connect.php");
             height: 100%;
             padding: 5px;
             object-fit: cover;
+        }    
             /* Maintain aspect ratio */
-        }
-    </style>
+
+        /* ===== POST VIEW POPUP ===== */
+
+.popup-container {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    z-index: 99999 !important;
+}
+
+.popup-card {
+    position: fixed !important;
+
+    width: 900px !important;
+    height: 600px !important;
+
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    background: white !important;
+    border-radius: 8px !important;
+
+    display: flex !important;
+    overflow: hidden !important;
+}
+
+/* Left side - post image */
+[class^="messagepopup-img"] {
+    width: 60% !important;
+    height: 100% !important;
+
+    flex: 0 0 60% !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: black !important;
+    overflow: hidden !important;
+}
+
+[class^="messagepopup-img"] img,
+[class^="messagepopup-img"] video {
+    position: static !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    max-width: 100% !important;
+    max-height: 100% !important;
+
+    object-fit: contain !important;
+}
+
+/* Right side */
+.messageofrightsidecontent {
+    flex: 0 0 40% !important;
+    width: 40% !important;
+    height: 100% !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+}
+
+/* Remove old positioning */
+.messageofrightsidecontent > div {
+    margin-left: 0 !important;
+}
+
+.messageofrightsidecontent hr {
+    width: 100% !important;
+    margin: 10px 0 !important;
+}
+
+.close-button {
+    position: fixed !important;
+    top: 10px !important;
+    left: 15px !important;
+
+    width: 30px !important;
+    height: 30px !important;
+
+    z-index: 100000 !important;
+    cursor: pointer !important;
+}
+
+}
+</style>
 
     <?php
 
@@ -301,7 +419,7 @@ require("connect.php");
             </div>
         </div>
         <br>
-        <div style="display:flex;justify-content:flex-start;gap:50px;">
+        <div style="display:flex;justify-content:flex-start;gap:45px;margin-left:-100px;">
             <div class="highlight">
                 <div class="highlight-image"><img src="/rythm/assets/postimg1.jpg" alt="Highlight 1" style="height:80px;width:80px;border-radius:50px;"><br><label>Highlights</label></div>
             </div>
@@ -796,11 +914,10 @@ require("connect.php");
                 if (response.postType === 'image') {
                     var imgElement = document.createElement('img');
                     imgElement.src = response.content;
-                    imgElement.style.width = '340px';
-                    imgElement.style.height = '100.3%';
-                    imgElement.style.position = 'absolute'; // or 'absolute'
-                    imgElement.style.top = '-1px';
-                    imgElement.style.left = '0px';
+                    imgElement.style.width = '100%';
+                    imgElement.style.height = '100%';
+                    imgElement.style.objectFit = 'contain';
+                    imgElement.style.display = 'block';
 
                     messagePopupContent.appendChild(imgElement);
 
@@ -819,12 +936,12 @@ require("connect.php");
                     videoElement.appendChild(sourceElement);
 
                     // Apply the same styles as the image element
-                    videoElement.style.width = '340px';
-                    videoElement.style.height = '100.3%';
-                    videoElement.style.position = 'absolute'; // or 'absolute'
-                    videoElement.style.top = '-1px';
-                    videoElement.style.left = '0px';
+                    videoElement.style.width = '100%';
+                    videoElement.style.height = '100%';
+                    videoElement.style.objectFit = 'contain';
+                    videoElement.style.display = 'block';
                     videoElement.style.background = 'black';
+
 
                     // Check if the video tag is appended to the parent element
                     if (messagePopupContent.appendChild(videoElement)) {

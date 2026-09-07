@@ -22,7 +22,7 @@ if ($checkStmt->rowCount() > 0) {
     exit;
 }
 
-$password = password_hash($inputpassword, PASSWORD_DEFAULT); 
+$password = md5($inputpassword);
 $title = ""; 
 
 $categoryMap = [

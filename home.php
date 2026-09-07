@@ -19,13 +19,19 @@ include("includes/header.php");
 
 <style>
 
+
+.main-content {
+    padding: 0 20px 20px 20px !important;
+}
+
 .home-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 30px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 300px !important;
+    gap: 30px !important;
+    width: 100% !important
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 20px !important;
     align-items: start;
 }
 
@@ -35,28 +41,17 @@ include("includes/header.php");
 }
 
 .home-suggestions {
-    width: 320px;
-    position: sticky;
-    top: 90px;
+    grid-column: 2 !important;
+    width: 300px !important;
+    display: block !important;
+    position: sticky !important;
+    top: 10px !important;
 }
 
 #centerconteid {
     width: 100%;
     display: block !important;
     text-align: left !important;
-}
-
-@media (max-width: 900px) {
-
-    .home-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .home-suggestions {
-        width: 100%;
-        position: static;
-    }
-
 }
 
 </style>
