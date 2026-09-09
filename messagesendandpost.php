@@ -4,8 +4,12 @@ session_start();
 include("connect.php");
 
 
- $username = $_SESSION['username'];
+$username = $_SESSION['username'];
 $rolemaster_id = $_SESSION['role_master_id'];
+
+$post_id = $_POST['post_id'] ?? '';
+$tosenderid = $_POST['tosenderid'] ?? '';
+$messagecontent = $_POST['messagecontent'] ?? '';
 
 if ($post_id != '' && $tosenderid != '' && $messagecontent != '') {
   try {

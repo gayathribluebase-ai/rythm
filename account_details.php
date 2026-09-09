@@ -1,7 +1,10 @@
 <?php
 session_start();
 require("connect.php");
+
+$loggedInUserId = $_SESSION['users_id'] ?? 0;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,6 +19,101 @@ require("connect.php");
 
 <body>
     <style>
+
+        /* ===== PROFILE PHOTO MODAL ===== */
+
+#profileUploadModal {
+    display: none;
+    position: absolute !important;
+    top: 50px !important;
+    left: 0 !important;
+
+    width: -250px !important;
+    height: auto !important;
+    min-height: -100px !important;
+
+    padding: 5px 7px !important;
+    box-sizing: border-box !important;
+
+    background: #fff !important;
+    border-radius: 7px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.20) !important;
+
+    z-index: 9999 !important;
+}
+
+/* Heading */
+#profileUploadModal h2 {
+    margin: 0 0 10px 0 !important;
+    padding: 0 !important;
+
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    font-weight: 250 !important;
+}
+
+/* All modal labels */
+#profileUploadModal .modal-label {
+    display: block !important;
+
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px 0 !important;
+
+    text-align: center !important;
+    box-sizing: border-box !important;
+
+    cursor: pointer !important;
+    font-size: 15px !important;
+}
+
+/* Options */
+#profileUploadModal .modal-label {
+    display: block !important;
+
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px 0 !important;
+
+    text-align: center !important;
+    font-size: 15px !important;
+
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+
+
+/* Upload */
+#profileUploadModal .modal-label[onclick="uploadProfileImage();"] {
+    color: #0000ff !important;
+}
+
+/* Remove */
+#profileUploadModal .modal-label[onclick="removeProfileImage();"] {
+    color: #ff0000 !important;
+}
+
+/* Cancel */
+#profileUploadModal .modal-label[onclick="hidepopcardd();"] {
+    color: #333333 !important;
+}
+
+
+/* Divider */
+#profileUploadModal hr {
+    margin: 5px 0 !important;
+    border: 0 !important;
+    border-top: 1px solid #eeeeee !important;
+}
+
+/* Lines inside modal */
+#profileUploadModal hr {
+    margin: 8px 0 !important;
+    border: 0 !important;
+    border-top: 1px solid #dddddd !important;
+}
+
         .container-profile {
             width: 650px !important;
             max-width: 650px !important;
@@ -364,18 +462,56 @@ require("connect.php");
     cursor: pointer !important;
 }
 
+/* ===== PROFILE CAMERA POSITION ===== */
+
+.profile-img-container {
+    position: relative !important;
+    width: 150px !important;
+    height: 150px !important;
+    flex-shrink: 0 !important;
 }
+
+.profile-camera {
+    position: absolute !important;
+    bottom: 5px !important;
+    right: 5px !important;
+
+    width: 35px !important;
+    height: 35px !important;
+
+    background: white !important;
+    border: 1px solid #ddd !important;
+    border-radius: 50% !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+
+    cursor: pointer !important;
+    z-index: 10 !important;
+}
+
+.profile-camera i {
+    font-size: 16px !important;
+    color: #666 !important;
+}
+
 </style>
 
     <?php
+        if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-    //$username = $_SESSION['username'];
-    // $rolemaster_id = $_SESSION['role_master_id'];
+    $loggedInUserId = $_SESSION['users_id'] ?? 0;
     $rolemaster_id = $_REQUEST['id'];
     //  print_r('id');
 
     $folowelist = $con->query("SELECT * FROM `user_master` where users_id='$rolemaster_id'");
     $getallposters2 = $folowelist->fetch(PDO::FETCH_ASSOC);
+    $profile_image = $getallposters2['profile_img'] ?? '';
     $getposter = $con->query("SELECT * FROM `posters` where username_id='$rolemaster_id'");
     $getallposters3 = $getposter->fetch(PDO::FETCH_ASSOC);
     $getpostcount = $con->query("SELECT 
@@ -394,30 +530,67 @@ require("connect.php");
     $getcntfollowing = $con->query("SELECT COUNT(*) as followingcount FROM `following_details` WHERE follower_id='$rolemaster_id' AND following_sts='1'");
     $getdata = $getcntfollowing->fetch(PDO::FETCH_ASSOC);
     ?>
+
     <div class="container-profile">
-            <div class="profile-img-container position-relative" style="width: 150px; height: 150px; margin-right: 30px; cursor: pointer;" onclick="chnageprofilepic(<?php echo $getallposters2['id'] ?>);">
-                <?php if ($getallposters2['profile_img'] != '') { ?>
-                    <img src="<?php echo $getallposters2['profile_img']; ?>" alt="Profile Picture" class="profile-img" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 5px solid pink;">
-                <?php } else { ?>
-                    <img src="/rythm/assets/profile.png" alt="Profile Picture" class="profile-img" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 5px solid pink;">
-                <?php } ?>
-                <!-- Camera Icon Overlay -->
-                <div style="position: absolute; bottom: 5px; right: 5px; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <i class="fa fa-camera text-muted"></i>
-                </div>
+
+    <div class="profile-img-container position-relative"
+         style="width: 150px; height: 150px; margin-right: 30px;">
+
+        <img src="<?php echo htmlspecialchars($profile_image); ?>"
+             class="profile-img"
+             style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+
+        <?php if ((int)$loggedInUserId === (int)$getallposters2['id']) { ?>
+
+            <div class="profile-camera"
+                 onclick="chnageprofilepic(<?php echo $getallposters2['id']; ?>)">
+                <i class="fa fa-camera"></i>
             </div>
-            <div class="profile-info">
-                <div style="display:flex;justify-content:flex-start;gap:120px;">
-                    <h1><?php echo ucfirst($getallposters2['user_name']); ?></h1><a href="#" class="edit-profile-button">Edit</a>
-                </div>
-                <br>
-                <div class="counts">
-                    <span style="font-size:20px;"><strong><?php echo $addcounts; ?></strong> posts</span>
-                    <span style="font-size:20px;"><strong>3</strong> followers</span>
-                    <span style="font-size:20px;"><strong><?php echo $getdata['followingcount']; ?></strong> following</span>
-                </div>
-            </div>
+
+        <?php } ?>
+
+    </div>
+
+    <div class="profile-info">
+
+        <div style="display:flex;justify-content:flex-start;gap:120px;">
+
+            <h1>
+                <?php echo ucfirst($getallposters2['user_name']); ?>
+            </h1>
+
+            <?php if ((int)$loggedInUserId === (int)$getallposters2['id']) { ?>
+
+                <a href="/rythm/editprofile.php?id=<?php echo $rolemaster_id; ?>"
+                   class="edit-profile-button">
+                    Edit
+                </a>
+
+            <?php } ?>
+
         </div>
+
+        <br>
+
+        <div class="counts">
+
+            <span style="font-size:20px;">
+                <strong><?php echo $addcounts; ?></strong> posts
+            </span>
+
+            <span style="font-size:20px;">
+                <strong>3</strong> followers
+            </span>
+
+            <span style="font-size:20px;">
+                <strong><?php echo $getdata['followingcount']; ?></strong> following
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
         <br>
         <div style="display:flex;justify-content:flex-start;gap:45px;margin-left:-100px;">
             <div class="highlight">
@@ -734,19 +907,31 @@ require("connect.php");
     <script src="script.js"></script>
     <br><br>
     <div class="modal_hidden" id="profileUploadModal">
-        <h2>Change Your Profile Photo</h2>
-        <label class="modal-label" style="color:blue;margin-left:101px;" onclick="uploadProfileImage();">Upload&nbsp;&nbsp;a&nbsp;&nbsp;Photo</label><br>
-        <input type="file" id="fileInput" style="display: none;" onchange="fileSelected(event);">
+        <h3>Change Profile Photo</h3>
+    <label
+        class="modal-label upload-option"
+        onclick="uploadProfileImage();">
+        Upload a Photo
+    </label>        
+    <input type="file" id="fileInput" style="display: none;" onchange="fileSelected(event);">
         <br>
         <div style="display:none;margin:0 auto;" id="picuplodedsavebtn">
             <button type="button" class="savebtnnn" onclick="saveProfileImage();">Save</button>
             <span id="selectedFileName"></span> <span class="close-icon" id="" onclick="clearSelectedFile();" style="cursor: pointer;">&#x2716;</span> <!-- Close icon -->
         </div>
         <hr><br>
-        <label class="modal-label" style="color: red;margin-left:77px;">Remove&nbsp;&nbsp;Profile&nbsp;&nbsp;Picture</label>
+    <label
+        class="modal-label remove-option"
+        onclick="removeProfileImage();">
+        Remove Profile Picture
+    </label>
         <br>
         <hr><br>
-        <label class="modal-label" style="margin-left:140px;" onclick="hidepopcardd();">Cancel</label>
+    <label
+        class="modal-label cancel-option"
+        onclick="hidepopcardd();">
+        Cancel
+    </label>
     </div>
 </body>
 
@@ -829,6 +1014,37 @@ require("connect.php");
         clearSelectedFile(); // Clear selected file when hiding the modal
         document.getElementById('profileUploadModal').style.display = 'none';
     }
+
+    // Remove Profile Picture
+
+    function removeProfileImage() {
+
+    if (!confirm("Are you sure you want to remove your profile picture?")) {
+        return;
+    }
+
+    $.ajax({
+        url: 'remove_profile_pic.php',
+        type: 'POST',
+
+        success: function(response) {
+
+            if (response.trim() === '1') {
+                alert('Profile picture removed successfully.');
+
+                window.location.reload();
+            } else {
+                alert('Failed to remove profile picture.');
+            }
+
+        },
+
+        error: function(xhr, status, error) {
+            console.error('Error removing profile picture:', error);
+            alert('Something went wrong.');
+        }
+    });
+}
 
     // Function to handle file selection
     function fileSelected(event) {

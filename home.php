@@ -251,8 +251,8 @@ include("includes/header.php");
                 </div>
                 <div class="user-list overflow-auto px-3 py-2" style="max-height: 300px;" id="shareUserList">
                     <?php
-                    $stmt = $con->prepare("SELECT * FROM user_master WHERE role_master_id != ?");
-                    $stmt->execute([$rolemaster_id]);
+                    $stmt = $con->prepare("SELECT * FROM user_master WHERE id != ?");
+                    $stmt->execute([$_SESSION['users_id']]);
                     while($u = $stmt->fetch(PDO::FETCH_ASSOC)):
                     ?>
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -260,35 +260,18 @@ include("includes/header.php");
                             <img src="<?php echo !empty($u['profile_img']) ? $u['profile_img'] : '/rythm/assets/images/lion.png'; ?>" class="rounded-circle border" style="width: 35px; height: 35px; object-fit: cover;">
                             <span class="small fw-bold"><?php echo htmlspecialchars($u['user_name']); ?></span>
                         </div>
-                        <input type="checkbox" class="share-user-check form-check-input" value="<?php echo $u['role_master_id']; ?>">
+                        <input type="checkbox" class="share-user-check form-check-input" value="<?php echo $u['id']; ?>">
                     </div>
                     <?php endwhile; ?>
                 </div>
                 <div class="px-3 py-2 border-top">
-                    <textarea id="shareComment" class="form-control border-0 bg-light rounded-3 small" placeholder="Write a message..." rows="2">
-    $('#searchResultsDropdown').hide();
-    $('#mainSearch').val('');
 
-    $.ajax({
-        type: 'GET',
-        url: '/rythm/account_details.php',
-        data: {
-            id: userId
-        },
-        success: function(response) {
-
-            $('#centerconteid').html(response);
-
-        },
-        error: function(xhr, status, error) {
-
-            console.log('Profile loading failed:', error);
-            console.log(xhr.responseText);
-
-        }
-    });
-}holder="Write a message..." rows="2"></textarea>
-                </div>
+        <textarea id="shareComment"
+          class="form-control border-0 bg-light rounded-3 small"
+          placeholder="Write a message..."
+          rows="2"></textarea>
+          
+        </div>
             </div>
             <div class="modal-footer border-0 p-3">
                 <button class="btn btn-pink w-100 rounded-pill fw-bold" id="confirmShareBtn">Send</button>
@@ -300,6 +283,30 @@ include("includes/header.php");
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+
+function loadSearchProfile(userId) {
+
+    $('#searchResultsDropdown').hide();
+    $('#mainSearch').val('');
+
+    $.ajax({
+        type: 'GET',
+        url: '/rythm/account_details.php',
+        data: {
+            id: userId
+        },
+        success: function(response) {
+            $('#centerconteid').html(response);
+        },
+        error: function(xhr, status, error) {
+            console.log('Profile loading failed:', error);
+            console.log(xhr.responseText);
+        }
+    });
+
+}
+
 function toggleSound(event, videoId, btn) {
     event.stopPropagation(); // 🔥 modal open ஆகாமல் stop
 
@@ -372,11 +379,13 @@ function showMuteOverlay(container, text) {
     }
 
     function sharePost(postId) {
-        currentPostId = postId;
-        $('.share-user-check').prop('checked', false);
-        $('#shareComment').val('');
-        shareModal.show();
-    }
+    currentPostId = postId;
+
+    $('.share-user-check').prop('checked', false);
+    $('#shareComment').val('');
+
+    shareModal.show();
+}
 
     $('#confirmShareBtn').click(function() {
         let selectedIds = [];
@@ -389,26 +398,31 @@ function showMuteOverlay(container, text) {
             return;
         }
         
-        const message = $('#shareComment').val();
-        $.post('/rythm/messagesendandpost.php', {
-            post_id: currentPostId,
-            tosenderid: selectedIds.join(','),
-            messagecontent: message
-        }, function(res) {
-            if(res == 1) {
-                alert("Shared Successfully!");
-                shareModal.hide();
-            } else {
-                alert("Failed to share.");
-            }
-        });
-    });
+    const message = $('#shareComment').val();
 
-    function fetchComments(postId) {
-        $.post('/rythm/getcomments.php', { post_id: postId }, function(response) {
-            $('#modalCommentsList').html(response);
-        });
-    }
+    $.post('/rythm/messagesendandpost.php', { 
+    post_id: currentPostId, 
+    tosenderid: selectedIds.join(','), 
+    messagecontent: message 
+}, function(res) { 
+    console.log("Share response:", res); 
+
+    if(res.trim() == "1") { 
+        alert("Shared Successfully!"); 
+        shareModal.hide(); 
+    } else { 
+        alert("Share failed. Server response: " + res); 
+    } 
+}); 
+
+});   // 🔥 THIS WAS MISSING
+
+
+function fetchComments(postId) { 
+    $.post('/rythm/getcomments.php', { post_id: postId }, function(response) { 
+        $('#modalCommentsList').html(response); 
+    }); 
+}
 
     $('#postCommentBtn').click(function() {
         const comment = $('#commentInput').val();
