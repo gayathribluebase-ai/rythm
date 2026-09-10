@@ -82,6 +82,21 @@ include("includes/header.php");
         overflow: hidden;
     }
 
+    .unread-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background: var(--rythm-deep-pink);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+}
+
     .user-info .name {
         display: block;
         font-weight: 600;
@@ -229,30 +244,46 @@ include("includes/header.php");
             <?php
             $stmt = $con->prepare("
                 SELECT 
-                    u.users_id,
-                    u.user_name,
-                    u.profile_img,
-                    (
-                        SELECT message FROM messages m1
-                        WHERE (m1.sender_id=u.users_id AND m1.receiver_id=?)
-                           OR (m1.sender_id=? AND m1.receiver_id=u.users_id)
-                        ORDER BY id DESC LIMIT 1
-                    ) AS message,
-                    (
-                        SELECT timestamp FROM messages m2
-                        WHERE (m2.sender_id=u.users_id AND m2.receiver_id=?)
-                           OR (m2.sender_id=? AND m2.receiver_id=u.users_id)
-                        ORDER BY id DESC LIMIT 1
-                    ) AS time
-                FROM user_master u
-                INNER JOIN following_details f 
-                    ON u.users_id = f.following_id
-                WHERE f.follower_id = ? 
-                  AND f.following_sts = 1
-                ORDER BY time DESC
+    u.users_id,
+    u.user_name,
+    u.profile_img,
+
+    (
+        SELECT message FROM messages m1
+        WHERE (m1.sender_id=u.users_id AND m1.receiver_id=?)
+           OR (m1.sender_id=? AND m1.receiver_id=u.users_id)
+        ORDER BY id DESC LIMIT 1
+    ) AS message,
+
+    (
+        SELECT timestamp FROM messages m2
+        WHERE (m2.sender_id=u.users_id AND m2.receiver_id=?)
+           OR (m2.sender_id=? AND m2.receiver_id=u.users_id)
+        ORDER BY id DESC LIMIT 1
+    ) AS time,
+
+    (
+        SELECT COUNT(*)
+        FROM messages m3
+        WHERE m3.sender_id = u.users_id
+          AND m3.receiver_id = ?
+          AND m3.is_read = 0
+    ) AS unread_count
+
+FROM user_master u
+
+INNER JOIN following_details f 
+    ON u.users_id = f.following_id
+
+WHERE f.follower_id = ?
+  AND f.following_sts = 1
+
+ORDER BY time DESC
             ");
 
+
             $stmt->execute([
+                $login_user_id,
                 $login_user_id,
                 $login_user_id,
                 $login_user_id,
@@ -270,7 +301,15 @@ include("includes/header.php");
                     <img src="<?php echo $img; ?>" class="user-avatar">
                     <div class="user-info">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="name"><?php echo htmlspecialchars($user['user_name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        <span class="name">
+    <?php echo htmlspecialchars($user['user_name'], ENT_QUOTES, 'UTF-8'); ?>
+
+    <?php if ((int)$user['unread_count'] > 0): ?>
+        <span class="unread-count">
+            <?php echo (int)$user['unread_count']; ?>
+        </span>
+    <?php endif; ?>
+</span>
                             <small style="font-size: 11px; color: #ccc;"><?php echo $formattedTime; ?></small>
                         </div>
                         <span class="last-msg"><?php echo htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); ?></span>
@@ -312,10 +351,161 @@ include("includes/header.php");
 </div>
 
 <script>
+
 let currentUser = 0;
+
+const myUserId = <?php echo (int)$_SESSION['users_id']; ?>;
+
+const socket = new WebSocket("ws://localhost:8080");
+
+socket.onopen = function() {
+
+    console.log("Rythm WebSocket connected!");
+
+    socket.send(JSON.stringify({
+        type: "login",
+        user_id: <?php echo $_SESSION['users_id']; ?>
+    }));
+};
+
+
+socket.onmessage = function(event) {
+
+    const data = JSON.parse(event.data);
+
+    console.log("Received:", data);
+
+    if (data.type !== "message") {
+        return;
+    }
+
+    // Message belongs to currently opened chat
+    if (
+        (data.sender_id == myUserId && data.receiver_id == currentUser) ||
+        (data.sender_id == currentUser && data.receiver_id == myUserId)
+    ) {
+
+        let isMine = data.sender_id == myUserId;
+
+        let html = "";
+
+        if (isMine) {
+
+            html = `
+            <div class="d-flex flex-column align-items-end mb-2">
+                <div style="
+                    background:var(--rythm-deep-pink);
+                    color:#fff;
+                    padding:10px 18px;
+                    border-radius:20px 20px 0 20px;
+                    max-width:75%;
+                ">
+                    ${data.message}
+                </div>
+
+                <small style="
+                    font-size:10px;
+                    color:#aaa;
+                    margin-top:4px;
+                    margin-right:5px;
+                ">
+                    ${data.timestamp}
+                </small>
+            </div>`;
+
+        } else {
+
+            html = `
+            <div class="d-flex flex-column align-items-start mb-2">
+                <div style="
+                    background:#f0f0f0;
+                    color:#333;
+                    padding:10px 18px;
+                    border-radius:20px 20px 20px 0;
+                    max-width:75%;
+                    border:1px solid #eee;
+                ">
+                    ${data.message}
+                </div>
+
+                <small style="
+                    font-size:10px;
+                    color:#aaa;
+                    margin-top:4px;
+                    margin-left:5px;
+                ">
+                    ${data.timestamp}
+                </small>
+            </div>`;
+
+        }
+
+        $('#chatBox').append(html);
+
+        scrollToBottom();
+
+        // Message is being read because this chat is open
+        if (!isMine) {
+
+            $.post('mark_read.php', {
+                sender_id: data.sender_id
+            });
+
+        }
+
+        return;
+    }
+
+
+    // Message is from another user whose chat is NOT open
+    if (data.receiver_id == myUserId && data.sender_id != myUserId) {
+
+        let userItem = $('.user-item[data-id="' + data.sender_id + '"]');
+
+        if (userItem.length > 0) {
+
+            let countElement = userItem.find('.unread-count');
+
+            if (countElement.length > 0) {
+
+                let currentCount = parseInt(countElement.text()) || 0;
+
+                countElement.text(currentCount + 1);
+
+            } else {
+
+                userItem.find('.name').append(`
+                    <span class="unread-count">1</span>
+                `);
+
+            }
+        }
+    }
+
+};
+
+socket.onerror = function(error) {
+    console.error("WebSocket error:", error);
+};
+
+
+socket.onclose = function() {
+    console.log("Rythm WebSocket disconnected.");
+};
 
 function loadChat(id, name, img, element) {
     currentUser = id;
+
+    // Mark messages as read
+    $.post('mark_read.php', {
+        sender_id: currentUser
+    }, function(res) {
+
+        if (res == 1) {
+            $(element).find('.unread-count').remove();
+        }
+
+    });
 
     // UI Updates
     $('.user-item').removeClass('active');
@@ -346,33 +536,36 @@ function scrollToBottom() {
     box.scrollTop = box.scrollHeight;
 }
 
-// Auto Refresh
-setInterval(() => {
-    if (currentUser != 0) {
-        fetchMessages();
-    }
-}, 3000);
 
 // Send Message
 $('#sendForm').submit(function(e) {
+
     e.preventDefault();
-    if (currentUser == 0) return;
+
+    if (currentUser == 0) {
+        return;
+    }
 
     let msgText = $('#msg').val().trim();
-    if (msgText == '') return;
 
-    // Optimistic UI for immediate feel could be added here
-    
-    $.post('send_message.php', {
+    if (msgText == '') {
+        return;
+    }
+
+    if (socket.readyState !== WebSocket.OPEN) {
+        alert("Chat connection is not ready.");
+        return;
+    }
+
+    socket.send(JSON.stringify({
+        type: "message",
         receiver_id: currentUser,
         message: msgText
-    }, function(res) {
-        if(res == 1) {
-            $('#msg').val('');
-            fetchMessages();
-        }
-    });
+    }));
+
+    $('#msg').val('');
 });
+
 </script>
 
 <?php include("includes/footer.php"); ?>
