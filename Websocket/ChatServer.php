@@ -89,7 +89,7 @@ try {
 
 } catch (\PDOException $e) {
 
-    echo "DATABASE ERROR: " . $e->getMessage() . "\n";
+    echo "DATABASE ERROR: " . $e->getmessage() . "\n";
     return;
 }
 
@@ -139,7 +139,7 @@ try {
         ConnectionInterface $conn,
         \Exception $e
     ) {
-        echo "Error: {$e->getMessage()}\n";
+        echo "Error: {$e->getmessage()}\n";
 
         $conn->close();
     }

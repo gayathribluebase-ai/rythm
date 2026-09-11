@@ -5,13 +5,13 @@ include("connect.php");
 
 
 $username = $_SESSION['username'];
-$rolemaster_id = $_SESSION['role_master_id'];
+$sender_id = $_SESSION['users_id'];
 
 $post_id = $_POST['post_id'] ?? '';
 $tosenderid = $_POST['tosenderid'] ?? '';
 $messagecontent = $_POST['messagecontent'] ?? '';
 
-if ($post_id != '' && $tosenderid != '' && $messagecontent != '') {
+if ($post_id != '' && $tosenderid != '') {
   try {
     // Determine if multiple IDs (comma separated)
     $ids = explode(',', $tosenderid);
@@ -22,7 +22,7 @@ if ($post_id != '' && $tosenderid != '' && $messagecontent != '') {
     foreach ($ids as $to_id) {
         $to_id = trim($to_id);
         if(!empty($to_id)) {
-            if (!$stmt->execute([$post_id, $rolemaster_id, $to_id, $messagecontent])) {
+            if (!$stmt->execute([$post_id, $sender_id, $to_id, $messagecontent])) {
                 $success = false;
             }
         }

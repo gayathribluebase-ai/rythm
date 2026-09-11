@@ -84,20 +84,21 @@ $sharedPosts = $stmtShare->fetchAll(PDO::FETCH_ASSOC);
 |--------------------------------------------------------------------------
 */
 
-foreach ($items as $item) {
+foreach ($items as &$item) {
     $item['sort_time'] = $item['timestamp'];
 }
+unset($item);
 
-foreach ($sharedPosts as $item) {
+foreach ($sharedPosts as &$item) {
     $item['sort_time'] = $item['created_on'];
 }
+unset($item);
 
 $allItems = array_merge($items, $sharedPosts);
 
 usort($allItems, function ($a, $b) {
     return strtotime($a['sort_time']) <=> strtotime($b['sort_time']);
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -207,33 +208,47 @@ foreach ($allItems as $row) {
             strtotime($row['created_on'])
         );
 
-        $postImage = '';
+        $postMedia = '';
 
         if (!empty($row['postimg'])) {
 
-            $postImage = '
-            <img src="' . htmlspecialchars(
-                $row['postimg'],
-                ENT_QUOTES,
-                'UTF-8'
-            ) . '"
-            style="
-                width:100%;
-                max-height:350px;
-                object-fit:cover;
-                border-radius:12px;
-                margin-top:10px;
-            ">';
-        }
+        $postMedia = '
+        <img src="' . htmlspecialchars(
+        $row['postimg'],
+        ENT_QUOTES,
+        'UTF-8'
+    ) . '"
+    style="
+        width:100%;
+        max-height:350px;
+        object-fit:cover;
+        border-radius:12px;
+        margin-top:10px;
+    ">';
 
-        if ($row['postfrom_id'] == $sender) {
+} elseif (!empty($row['postvideos'])) {
 
+    $postMedia = '
+    <video controls
+        style="
+            width:100%;
+            max-height:350px;
+            border-radius:12px;
+            margin-top:10px;
+        ">
+        <source src="' . htmlspecialchars(
+            $row['postvideos'],
+            ENT_QUOTES,
+            'UTF-8'
+        ) . '" type="video/mp4">
+    </video>';
+}
             // SHARED POST SENT BY CURRENT USER - RIGHT
 
-            echo '
-            <div class="d-flex flex-column align-items-end mb-3">
+            if ($row['postfrom_id'] == $sender) {
 
-                <div style="
+            echo '
+            <div style="
                     background:#fff;
                     padding:12px;
                     border-radius:15px 15px 0 15px;
@@ -247,7 +262,8 @@ foreach ($allItems as $row) {
                         color:#999;
                         margin-bottom:6px;
                     ">
-                        📤 Shared a post
+                        📤 Shared a post from
+                        <strong>'.htmlspecialchars($row['username'], ENT_QUOTES, 'UTF-8').'</strong>
                     </div>
 
                     <div style="
@@ -257,7 +273,7 @@ foreach ($allItems as $row) {
                         '.$shareMessage.'
                     </div>
 
-                    '.$postImage.'
+                    '.$postMedia.'
 
                 </div>
 
@@ -271,15 +287,14 @@ foreach ($allItems as $row) {
                 </small>
 
             </div>';
-        }
+            }
+else {   
 
-        else {
-
-            // SHARED POST RECEIVED - LEFT
+        // SHARED POST RECEIVED - LEFT
 
             echo '
+            
             <div class="d-flex flex-column align-items-start mb-3">
-
                 <div style="
                     background:#fff;
                     padding:12px;
@@ -294,7 +309,8 @@ foreach ($allItems as $row) {
                         color:#999;
                         margin-bottom:6px;
                     ">
-                        📥 Shared a post
+                        📥 Shared a post from 
+                        <strong>'.htmlspecialchars($row['username'], ENT_QUOTES, 'UTF-8').'</strong>
                     </div>
 
                     <div style="
@@ -304,7 +320,7 @@ foreach ($allItems as $row) {
                         '.$shareMessage.'
                     </div>
 
-                    '.$postImage.'
+                    '.$postMedia.'
 
                 </div>
 
@@ -320,5 +336,5 @@ foreach ($allItems as $row) {
             </div>';
         }
     }
-}
+}    
 ?>

@@ -280,8 +280,7 @@ WHERE f.follower_id = ?
 
 ORDER BY time DESC
             ");
-
-
+            
             $stmt->execute([
                 $login_user_id,
                 $login_user_id,
@@ -378,6 +377,11 @@ socket.onmessage = function(event) {
     if (data.type !== "message") {
         return;
     }
+
+    console.log("myUserId:", myUserId);
+    console.log("currentUser:", currentUser);
+    console.log("sender_id:", data.sender_id);
+    console.log("receiver_id:", data.receiver_id);
 
     // Message belongs to currently opened chat
     if (
@@ -536,6 +540,57 @@ function scrollToBottom() {
     box.scrollTop = box.scrollHeight;
 }
 
+function updateUnreadCounts() {
+
+    $.getJSON('get_unread_counts.php', function(counts) {
+
+        $('.user-item').each(function() {
+
+            let userId = $(this).data('id');
+
+            let count = counts[userId] || 0;
+
+            let countElement = $(this).find('.unread-count');
+
+            // If this chat is currently open,
+            // don't show an unread count
+            if (userId == currentUser) {
+
+                countElement.remove();
+                return;
+
+            }
+
+            if (count > 0) {
+
+                if (countElement.length > 0) {
+
+                    countElement.text(count);
+
+                } else {
+
+                    $(this).find('.name').append(
+                        '<span class="unread-count">' + count + '</span>'
+                    );
+
+                }
+
+            } else {
+
+                countElement.remove();
+
+            }
+
+        });
+
+    });
+
+}
+
+setInterval(updateUnreadCounts, 3000);
+
+updateUnreadCounts();
+
 
 // Send Message
 $('#sendForm').submit(function(e) {
@@ -552,18 +607,74 @@ $('#sendForm').submit(function(e) {
         return;
     }
 
-    if (socket.readyState !== WebSocket.OPEN) {
-        alert("Chat connection is not ready.");
-        return;
+
+    // WebSocket is running
+    if (socket.readyState === WebSocket.OPEN) {
+
+        socket.send(JSON.stringify({
+            type: "message",
+            receiver_id: currentUser,
+            message: msgText
+        }));
+
+        $('#msg').val('');
+
     }
 
-    socket.send(JSON.stringify({
-        type: "message",
+    // WebSocket is NOT running
+    
+    else {
+
+    $.post('send_message.php', {
+
         receiver_id: currentUser,
         message: msgText
-    }));
 
-    $('#msg').val('');
+    }, function(res) {
+
+        if (res == 1) {
+
+            $('#msg').val('');
+
+            // Show the message immediately
+            let html = `
+            <div class="d-flex flex-column align-items-end mb-2">
+
+                <div style="
+                    background:var(--rythm-deep-pink);
+                    color:#fff;
+                    padding:10px 18px;
+                    border-radius:20px 20px 0 20px;
+                    max-width:75%;
+                ">
+                    ${$('<div>').text(msgText).html()}
+                </div>
+
+                <small style="
+                    font-size:10px;
+                    color:#aaa;
+                    margin-top:4px;
+                    margin-right:5px;
+                ">
+                    Just now
+                </small>
+
+            </div>`;
+
+            $('#chatBox').append(html);
+
+            scrollToBottom();
+
+        } else {
+
+            alert("Message could not be sent.");
+
+        }
+
+    });
+
+}
+
 });
 
 </script>

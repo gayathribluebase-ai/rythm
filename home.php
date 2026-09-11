@@ -260,7 +260,7 @@ include("includes/header.php");
                             <img src="<?php echo !empty($u['profile_img']) ? $u['profile_img'] : '/rythm/assets/images/lion.png'; ?>" class="rounded-circle border" style="width: 35px; height: 35px; object-fit: cover;">
                             <span class="small fw-bold"><?php echo htmlspecialchars($u['user_name']); ?></span>
                         </div>
-                        <input type="checkbox" class="share-user-check form-check-input" value="<?php echo $u['id']; ?>">
+                        <input type="checkbox" class="share-user-check form-check-input" value="<?php echo $u['users_id']; ?>">
                     </div>
                     <?php endwhile; ?>
                 </div>
