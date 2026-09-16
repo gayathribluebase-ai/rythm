@@ -14,6 +14,7 @@ if ($sender_id == 0) {
     exit;
 }
 
+// Mark normal messages as read
 $stmt = $con->prepare("
     UPDATE messages
     SET is_read = 1
@@ -23,6 +24,20 @@ $stmt = $con->prepare("
 ");
 
 $stmt->execute([
+    $sender_id,
+    $login_user_id
+]);
+
+// Mark shared posts as read
+$stmtShare = $con->prepare("
+    UPDATE shareposter
+    SET is_read = 1
+    WHERE postfrom_id = ?
+      AND postto_id = ?
+      AND is_read = 0
+");
+
+$stmtShare->execute([
     $sender_id,
     $login_user_id
 ]);

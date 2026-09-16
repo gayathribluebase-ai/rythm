@@ -28,8 +28,12 @@ $stmt = $con->prepare("
         timestamp,
         'message' AS content_type
     FROM messages
-    WHERE (sender_id=? AND receiver_id=?)
-       OR (sender_id=? AND receiver_id=?)
+    WHERE (
+            (sender_id=? AND receiver_id=?)
+            OR   
+            (sender_id=? AND receiver_id=?)
+          )
+          AND message != '__SHARED_POST_NOTIFICATION__'      
 ");
 
 $stmt->execute([
@@ -84,20 +88,20 @@ $sharedPosts = $stmtShare->fetchAll(PDO::FETCH_ASSOC);
 |--------------------------------------------------------------------------
 */
 
-foreach ($items as &$item) {
-    $item['sort_time'] = $item['timestamp'];
-}
-unset($item);
-
-foreach ($sharedPosts as &$item) {
-    $item['sort_time'] = $item['created_on'];
-}
-unset($item);
-
 $allItems = array_merge($items, $sharedPosts);
 
 usort($allItems, function ($a, $b) {
-    return strtotime($a['sort_time']) <=> strtotime($b['sort_time']);
+
+    // Get the actual time of each item
+    $timeA = ($a['content_type'] === 'message')
+        ? strtotime($a['timestamp'])
+        : strtotime($a['created_on']);
+
+    $timeB = ($b['content_type'] === 'message')
+        ? strtotime($b['timestamp'])
+        : strtotime($b['created_on']);
+
+    return $timeA <=> $timeB;
 });
 
 /*
@@ -105,6 +109,7 @@ usort($allItems, function ($a, $b) {
 | Display
 |--------------------------------------------------------------------------
 */
+
 
 foreach ($allItems as $row) {
 

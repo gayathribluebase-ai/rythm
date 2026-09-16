@@ -361,6 +361,7 @@ socket.onopen = function() {
 
     console.log("Rythm WebSocket connected!");
 
+
     socket.send(JSON.stringify({
         type: "login",
         user_id: <?php echo $_SESSION['users_id']; ?>
@@ -637,33 +638,8 @@ $('#sendForm').submit(function(e) {
             $('#msg').val('');
 
             // Show the message immediately
-            let html = `
-            <div class="d-flex flex-column align-items-end mb-2">
-
-                <div style="
-                    background:var(--rythm-deep-pink);
-                    color:#fff;
-                    padding:10px 18px;
-                    border-radius:20px 20px 0 20px;
-                    max-width:75%;
-                ">
-                    ${$('<div>').text(msgText).html()}
-                </div>
-
-                <small style="
-                    font-size:10px;
-                    color:#aaa;
-                    margin-top:4px;
-                    margin-right:5px;
-                ">
-                    Just now
-                </small>
-
-            </div>`;
-
-            $('#chatBox').append(html);
-
-            scrollToBottom();
+            
+            fetchMessages();
 
         } else {
 

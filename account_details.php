@@ -760,6 +760,7 @@ $loggedInUserId = $_SESSION['users_id'] ?? 0;
                     </div>
                     <div class="threedotpopup2" id="threedotpopup2_<?php echo $dyn; ?>" style="display:none;margin:0 auto;">
                         <div class="threedotpopup-content2"><br><br>
+
                             <label style="color:red;font-weight:600;">Report</label>
                             <hr><br>
                             <label style="color:red;font-weight:600;">Unfollow</label>
@@ -776,7 +777,7 @@ $loggedInUserId = $_SESSION['users_id'] ?? 0;
                             <hr><br>
                             <label>About This Account</label>
                             <hr><br>
-                            <label onclick="closePopup2()">Cancel</label>
+                            <label onclick="closePopup2(<?php echo $dyn; ?>)">Cancel</label>
                         </div>
                     </div>
             </div>
@@ -1214,20 +1215,28 @@ $loggedInUserId = $_SESSION['users_id'] ?? 0;
 </script>
 
 <script>
-    function showPopup2(dyiddddd) {
-        //	debugger;
-        var messag = document.getElementById('popup-container_' + dyiddddd);
-        messag.style.display = 'none';
-        var popup = document.getElementById('threedotpopup');
-        popup.style.display = 'flex';
-    }
 
-    function closePopup2() {
-        var popup = document.getElementById('threedotpopup');
-        popup.style.display = 'none';
-    }
+
 </script>
 
+    function showPopup2(dyiddddd) {
+    var messag = document.getElementById('popup-container_' + dyiddddd);
+    if (messag) {
+        messag.style.display = 'none';
+    }
+
+    var popup = document.getElementById('threedotpopup2_' + dyiddddd);
+    if (popup) {
+        popup.style.display = 'flex';
+    }
+}
+
+    function closePopup2(dyiddddd) {
+    var popup = document.getElementById('threedotpopup2_' + dyiddddd);
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
 <script>
     function messagereplyfunc(dynmicid, popdynmicid, commderid, posterid) {
         //debugger;
