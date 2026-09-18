@@ -12,7 +12,7 @@ if (!isset($_SESSION['username'])) {
 
 $pageTitle = "Rythm - Home";
 $user_name = $_SESSION['user_name'];
-$rolemaster_id = $_SESSION['role_master_id'];
+$commder_id = $_SESSION['role_master_id'];
 
 include("includes/header.php");
 ?>
@@ -228,7 +228,7 @@ include("includes/header.php");
                     <div class="modal-footer border-top p-2 bg-white sticky-bottom">
                         <div class="w-100 d-flex gap-2 align-items-center">
                             <input type="text" id="commentInput" class="form-control rounded-pill border-0 bg-light px-3" placeholder="Add a comment...">
-                            <button class="btn btn-link text-primary fw-bold text-decoration-none" id="postCommentBtn">Post</button>
+                            <button type="button" class="btn btn-link text-primary fw-bold text-decoration-none" id="postCommentBtn">Post</button>
                         </div>
                     </div>
                 </div>
@@ -424,18 +424,40 @@ function fetchComments(postId) {
     }); 
 }
 
-    $('#postCommentBtn').click(function() {
-        const comment = $('#commentInput').val();
-        if(!comment) return;
-        
-        const alldata = currentPostId + "**" + "<?php echo $rolemaster_id; ?>" + "**" + comment;
-        $.post('/rythm/commandsinsert.php', { alldata: alldata }, function(res) {
-            if(res == 1) {
-                $('#commentInput').val('');
-                fetchComments(currentPostId);
-            }
-        });
+    $(document).on('click', '#postCommentBtn', function(e) {
+
+    e.preventDefault();
+
+    const comment = $('#commentInput').val().trim();
+
+    if (comment === '') {
+        alert('Please enter a comment');
+        return;
+    }
+
+    const alldata = currentPostId + "**" + "<?php echo $commder_id; ?>" + "**" + comment;
+
+    $.post('/rythm/commandsinsert.php', {
+        alldata: alldata
+    })
+    .done(function(res) {
+
+        console.log("Comment response:", res);
+
+        if (String(res).trim() === "1") {
+            $('#commentInput').val('');
+            fetchComments(currentPostId);
+        } else {
+            alert("Comment was not posted. Response: " + res);
+        }
+
+    })
+    .fail(function(xhr) {
+        console.log("Comment error:", xhr.responseText);
+        alert("Error posting comment. Check Console.");
     });
+
+});
 
     $('.toggle-like').click(function() {
         const id = $(this).data('id');
@@ -477,12 +499,12 @@ function fetchComments(postId) {
 
         $.post('/rythm/updatelikestsforcmnders.php', { 
             post_id: postId, 
-            commder_id: commentId, 
+            role_master_id: commentId, 
             like_status: nextStatus 
         }, function(response) {
             const count = response.replace('likes', '');
             $(`#comment-like-count-${commentId}`).text(count > 0 ? count : '');
-            
+             
             btn.data('status', nextStatus);
             if(nextStatus == 1) {
                 btn.removeClass('fa-regular').addClass('fa-solid text-danger');
@@ -505,6 +527,30 @@ function fetchComments(postId) {
             }
         });
     });
+
+
+$(document).on('click', '.reply-comment-btn', function () {
+
+    const username = $(this).data('username');
+
+    console.log("Reply clicked for:", username);
+
+    const commentInput = $('#commentInput');
+
+    if (commentInput.length) {
+
+        commentInput.val('@' + username + ' ');
+        commentInput.focus();
+
+    } else {
+
+        console.log("commentInput not found");
+        alert("Comment box not found");
+
+    }
+
+});
+
 </script>
 
 <?php include("includes/footer.php"); ?>

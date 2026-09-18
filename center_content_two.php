@@ -168,10 +168,24 @@ while ($data = $sql->fetch(PDO::FETCH_ASSOC)) {
                                                     $takedata = $takecuntlikes->fetch(PDO::FETCH_ASSOC);
                                                     ?>
                                                     <label style="color:gray;margin-left:48px;" id="msgcmdlikelbelidd_<?php echo $popdyid . '' . $dyn; ?>"><?php echo $takedata['likcntt'] . 'likes'; ?></label>
-                                                    <div class="icon" onclick="messagereplyfunc(<?php echo $dyn; ?>,<?php echo $popdyid; ?>,<?php echo $data['username_id']; ?>,<?php echo $posteriddddd; ?>)">
-                                                        <label style="color:gray;margin-left:48px;">Reply</label>
-                                                    </div>
-                                                </div>
+                                                    <button type="button" 
+                                                    onclick="messagereplyfunc(
+                                                        <?php echo $dyn; ?>,
+                                                        <?php echo $popdyid; ?>,
+                                                        <?php echo $commanddata['commander_id']; ?>,
+                                                        <?php echo $posteriddddd; ?>
+                                                    )"
+                                                    style="
+                                                        border:none;
+                                                        background:none;
+                                                        color:gray;
+                                                        margin-left:48px;
+                                                        cursor:pointer;
+                                                        padding:0;
+                                                        "
+                                                        >
+                                                        Reply
+                                                    </button></div>
                                                 <?php
                                                 if ($takedata['likeorno'] == 0) {
                                                 ?>
@@ -637,7 +651,7 @@ while ($data = $sql->fetch(PDO::FETCH_ASSOC)) {
 
     function commandinsert(dyid, posterid, commanderid) {
         debugger;
-        var textareaval = $('#bio_' + dyid).val();
+        var textareaval = $('#bio' + dyid).val();
         var alldataval = posterid + "**" + commanderid + "**" + textareaval;
 
         $.ajax({
@@ -761,7 +775,7 @@ while ($data = $sql->fetch(PDO::FETCH_ASSOC)) {
             data: {
                 post_id: postId,
                 like_status: likeStatus,
-                commder_id: cmderrid
+                commder_id: role_master_id
             },
             success: function(response) {
 
@@ -1001,30 +1015,57 @@ while ($data = $sql->fetch(PDO::FETCH_ASSOC)) {
         popup.style.display = 'none';
     }
 </script>
+
 <script>
-    function messagereplyfunc(dynmicid, popdynmicid, commderid, posterid) {
-        //debugger;
-        $.ajax({
-            type: 'POST',
-            url: 'getcommdername.php',
-            data: {
-                post_id: posterid,
-                //like_status: commderid,
-                commder_id: commderid
-            },
-            success: function(response) {
 
-                console.warn(response);
-                //document.getElementById('msgcmdlikelbelidd_'+cmdlikeid + '' +dynmid).innerText = response;	
-                //window.location.href='/rythm/homee.php';				   
+function messagereplyfunc(dynmicid, popdynmicid, role_master_id, posterid) {
 
-            },
-            error: function(error) {
+    console.log("Reply clicked");
+    console.log("Commenter role_master_id:", role_master_id);
 
-                // console.error(error);
+    $.ajax({
+        type: 'POST',
+        url: '/rythm/getcommdername.php',
+
+        data: {
+            commder_id: role_master_id
+        },
+
+        dataType: 'json',
+
+        success: function(response) {
+
+            console.log("Reply response:", response);
+
+            if (response.status == 1) {
+
+                var username = response.username;
+
+                var textarea = $('#bio' + dynmicid);
+
+                textarea.val('@' + username + ' ');
+                textarea.focus();
+
+                $('#postatag' + dynmicid).show();
+
+            } else {
+
+                alert("Could not find the commenter.");
+
             }
-        });
-    }
+        },
+
+        error: function(xhr, status, error) {
+
+            console.error("Reply AJAX error:", error);
+            console.error("Server response:", xhr.responseText);
+
+            alert("Reply failed. Check console.");
+
+        }
+    });
+}
+
 </script>
 
 <script>

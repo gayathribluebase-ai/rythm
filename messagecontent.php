@@ -1,34 +1,88 @@
 <?php
+
 include("connect.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $postId = $_POST['post_id'];
-     // Use prepared statements to prevent SQL injection
-    $updateQuery = $con->query("SELECT * from `posters` WHERE `id` = '$postId'");
-	//echo "UPDATE `posters` SET `likestatus` = '$likeStatus' WHERE `id` = '$postId'";
-	
-	$row=$updateQuery->fetch(PDO::FETCH_ASSOC);
-    
- if ($row) {
-        $postType = $row['post_type']; // Assuming there is a column named 'post_type' to determine if it's an image or video
 
-        $response = array('postType' => $postType);
+    $postId = $_POST['post_id'] ?? '';
 
-        if ($postType === 'image') {
+    if (empty($postId)) {
+        echo json_encode([
+            'error' => 'Invalid Post ID'
+        ]);
+        exit;
+    }
+
+    // Get post details + post owner's profile details
+    $stmt = $con->prepare("
+        SELECT
+            p.id,
+            p.post_type,
+            p.postimg,
+            p.postvideos,
+            p.username,
+            u.user_name,
+            u.profile_img
+        FROM posters p
+        LEFT JOIN user_master u
+            ON u.users_id = p.username_id
+        WHERE p.id = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([$postId]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+
+        $response = [
+            'username' => !empty($row['user_name'])
+                ? $row['user_name']
+                : $row['username'],
+
+            'profileImg' => !empty($row['profile_img'])
+                ? $row['profile_img']
+                : '/rythm/assets/images/lion.png',
+
+            'postType' => $row['post_type']
+        ];
+
+        // Image post
+        if ($row['post_type'] === 'image') {
+
             $response['content'] = $row['postimg'];
-        } 
-		elseif ($postType === 'video') {
-            $response['content'] = $row['postvideos'];
+
         }
-		else {
-            $response['content'] = 'Invalid post type';
+        // Video post
+        elseif ($row['post_type'] === 'video') {
+
+            $response['content'] = $row['postvideos'];
+
+        }
+        // Unknown post type
+        else {
+
+            $response['content'] = '';
+
         }
 
         echo json_encode($response);
+
     } else {
-        echo json_encode(array('error' => 'Post not found'));
+
+        echo json_encode([
+            'error' => 'Post not found'
+        ]);
+
     }
+
 } else {
-    echo json_encode(array('error' => 'Invalid request method'));
+
+    echo json_encode([
+        'error' => 'Invalid request method'
+    ]);
+
 }
+
 ?>

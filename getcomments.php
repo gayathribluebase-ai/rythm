@@ -46,7 +46,14 @@ try {
                            style="font-size: 14px;"></i>
                         <span id="comment-like-count-<?php echo $row['id']; ?>" class="fw-bold"><?php echo ($row['likests_cmd'] > 0) ? $row['likests_cmd'] : ''; ?></span>
                     </div>
-                    <span class="fw-bold cursor-pointer">Reply</span>
+                    <button
+    type="button"
+    class="fw-bold cursor-pointer reply-comment-btn"
+    data-username="<?php echo htmlspecialchars($row['user_name'], ENT_QUOTES, 'UTF-8'); ?>"
+    style="border:none;background:none;padding:0;color:inherit;"
+>
+    Reply
+</button>
                 </div>
 
             </div>

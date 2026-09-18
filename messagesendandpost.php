@@ -17,7 +17,11 @@ if ($post_id != '' && $tosenderid != '') {
     $ids = explode(',', $tosenderid);
     $success = true;
     
-    $stmt = $con->prepare("INSERT INTO `shareposter` (`posters_id`, `postfrom_id`, `postto_id`, `message_content`, `created_on`, `is_read`) VALUES (?, ?, ?, ?, NOW(), 0)");
+    $stmt = $con->prepare("
+    INSERT INTO shareposter
+    (posters_id, postfrom_id, postto_id, message_content, created_on, is_read)
+    VALUES (?, ?, ?, ?, NOW(), 0)
+");
     
     foreach ($ids as $to_id) {
         $to_id = trim($to_id);
