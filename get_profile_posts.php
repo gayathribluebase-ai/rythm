@@ -53,7 +53,23 @@ try {
                     <!-- Overlay on Hover -->
                     <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 d-flex align-items-center justify-content-center opacity-0 hover-opacity-100 transition-opacity">
                         <div class="text-white d-flex gap-3">
-                            <span><i class="fa fa-heart me-1"></i> <?php echo $item['likestatus'] ?? 0; ?></span>
+                            <?php
+                                $postId = $item['id'];
+
+                                $likeStmt = $con->prepare("
+                                SELECT COUNT(*)
+                                FROM poster_likes
+                                WHERE post_id = ? AND like_status = 1
+                                ");
+                                
+                                $likeStmt->execute([$postId]);
+                                $likeCount = (int)$likeStmt->fetchColumn();
+                            ?>
+
+                            <span>
+                                <i class="fa fa-heart me-1"></i>
+                                <?php echo $likeCount; ?>
+                            </span>
                             <span><i class="fa fa-comment me-1"></i> <?php echo $item['comment_count'] ?? 0; ?></span>
                         </div>
                     </div>

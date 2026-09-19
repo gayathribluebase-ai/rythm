@@ -36,18 +36,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($row) {
 
-        $response = [
-            'username' => !empty($row['user_name'])
-                ? $row['user_name']
-                : $row['username'],
+        // Get latest like count
+$likeStmt = $con->prepare("
+    SELECT COUNT(*)
+    FROM poster_likes
+    WHERE post_id = ?
+    AND like_status = 1
+");
 
-            'profileImg' => !empty($row['profile_img'])
-                ? $row['profile_img']
-                : '/rythm/assets/images/lion.png',
+$likeStmt->execute([$postId]);
 
-            'postType' => $row['post_type']
-        ];
+$likeCount = (int)$likeStmt->fetchColumn();
 
+$response = [
+    'username' => !empty($row['user_name'])
+        ? $row['user_name']
+        : $row['username'],
+
+    'profileImg' => !empty($row['profile_img'])
+        ? $row['profile_img']
+        : '/rythm/assets/images/lion.png',
+
+    'postType' => $row['post_type'],
+
+    'likeCount' => $likeCount
+];
         // Image post
         if ($row['post_type'] === 'image') {
 
