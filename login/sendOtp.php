@@ -37,7 +37,7 @@ function smtp_mailer($to, $subject, $msg)
     $mail->SMTPDebug = 2;
 
     $mail->Username = "gayathri.bluebase@gmail.com";
-    $mail->Password = "rjxd tegh zdfa ncwd"; //Sender's Email App Password 
+    $mail->Password = "nilm sglm zxkq yoiu"; //Sender's Email App Password 
 
     $mail->SetFrom("gayathri.bluebase@gmail.com");
 

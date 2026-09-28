@@ -490,29 +490,79 @@ function fetchComments(postId) {
         });
     });
 
-    $(document).on('click', '.toggle-comment-like', function() {
-        const commentId = $(this).data('id');
-        const postId = $(this).data('post-id');
-        const currentStatus = $(this).data('status');
-        const nextStatus = (currentStatus == 1) ? 0 : 1;
-        const btn = $(this);
+    // Like / Unlike comments
+$(document).on('click', '.toggle-comment-like', function(e) {
 
-        $.post('/rythm/updatelikestsforcmnders.php', { 
-            post_id: postId, 
-            role_master_id: commentId, 
-            like_status: nextStatus 
-        }, function(response) {
-            const count = response.replace('likes', '');
-            $(`#comment-like-count-${commentId}`).text(count > 0 ? count : '');
-             
-            btn.data('status', nextStatus);
-            if(nextStatus == 1) {
-                btn.removeClass('fa-regular').addClass('fa-solid text-danger');
-            } else {
-                btn.removeClass('fa-solid text-danger').addClass('fa-regular');
+    e.preventDefault();
+
+    const btn = $(this);
+
+    // Prevent multiple clicks while request is processing
+    if (btn.data('processing')) {
+        return;
+    }
+
+    const commentId = btn.data('id');
+    const postId = btn.data('post-id');
+
+    const currentStatus = parseInt(btn.attr('data-status'), 10) || 0;
+    const nextStatus = currentStatus === 1 ? 0 : 1;
+
+    btn.data('processing', true);
+
+    $.ajax({
+        url: '/rythm/updatelikestsforcmnders.php',
+        type: 'POST',
+        dataType: 'json',
+
+        data: {
+            post_id: postId,
+            commder_id: commentId,
+            like_status: nextStatus
+        },
+
+        success: function(response) {
+
+            // Update count
+            const count = parseInt(response.count, 10);
+
+            if (!isNaN(count)) {
+                $('#comment-like-count-' + commentId)
+                    .text(count > 0 ? count : '');
             }
-        });
+
+            // Update the current user's like status
+            const liked = parseInt(response.liked, 10);
+
+            btn.attr('data-status', liked);
+            btn.data('status', liked);
+
+            if (liked === 1) {
+
+                btn.removeClass('fa-regular')
+                   .addClass('fa-solid text-danger');
+
+            } else {
+
+                btn.removeClass('fa-solid text-danger')
+                   .addClass('fa-regular');
+            }
+        },
+
+        error: function(xhr, status, error) {
+
+            console.log('Comment like error:', xhr.responseText);
+            console.log('Status:', status);
+            console.log('Error:', error);
+
+            alert('Unable to update comment like. Please try again.');
+        },
+
+        complete: function() {
+            btn.data('processing', false);
+        }
     });
+});
 
     $(document).on('click', '.toggle-save', function() {
         const id = $(this).data('id');

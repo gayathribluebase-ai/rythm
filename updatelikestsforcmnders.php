@@ -1,71 +1,98 @@
+
 <?php
-
 session_start();
+require_once("connect.php");
 
-include("connect.php");
+header('Content-Type: text/plain; charset=utf-8');
 
-
-$username = $_SESSION['username'];
-$rolemaster_id = $_SESSION['role_master_id'];
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
- $postId = $_POST['post_id'];
-$likeStatus = $_POST['like_status'];
-$commder_id=$_POST['commder_id'];
-
-$getcountoflikes = $con->query("SELECT *, SUM(likests_cmd) as likescount FROM `posters_commads` WHERE posterid='$postId' and `id` = '$commder_id'");
-
-$row = $getcountoflikes->fetch(PDO::FETCH_ASSOC);
-
-$countoflike = $row['likescount']; // total number of likes
-
-if ($likeStatus == 1) {
-    $addlikes = $countoflike + 1;
-	
-	 // Use prepared statements to prevent SQL injection
-    $updateQuery = $con->query("UPDATE `posters_commads` SET `likests_cmd` = '$addlikes',`likeorno` = '1' WHERE `posterid` = '$postId' and `id` = '$commder_id'");
-	
-    
-   
-} 
-else if ($likeStatus == 0) { // Change from -1 to 0 for dislikes
- 
-     $addlikes = $countoflike-1;
-	 
- // Use prepared statements to prevent SQL injection
-    $updateQuery = $con->query("UPDATE `posters_commads` SET `likests_cmd` = '$addlikes',`likeorno` = '0' WHERE `posterid` = '$postId' and `id` = '$commder_id'");
-	//echo "UPDATE `posters_commads` SET `likests_cmd` = '$likeStatus' WHERE `id` = '$postId'";
-    
-   
-   // echo $addlikes . 'fghgdfgh';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit("Invalid request");
 }
 
+// Logged-in user's ID
+$user_id = $_SESSION['users_id'] ?? 0;
 
-   
-  if($updateQuery)
-  {
-	//echo 'likests"'.$likeStatus.'"';  
-	$countoflikests=$con->query("SELECT *,SUM(likests_cmd) as likesttcount FROM `posters_commads` WHERE posterid='$postId' and `id` = '$commder_id' and likests_cmd!=0");
-	
-	$row1=$countoflikests->fetch(PDO::FETCH_ASSOC);
-	 
-	 echo $row1['likesttcount'].'likes';
-	 
-	 
-		 
-  }
-  else
-  {
-	  $countoflikests=$con->query("SELECT *,SUM(likests_cmd) as likesttcount FROM `posters_commads` WHERE posterid='$postId' and `id` = '$commder_id' and likests_cmd!=0");
-	  $row2=$countoflikests->fetch(PDO::FETCH_ASSOC);
-	  
-	   echo ($row2['likesttcount'] ?? 0).'likes';
-  }
-   
+$postId = $_POST['post_id'] ?? '';
+$commentId = $_POST['commder_id'] ?? '';
+$likeStatus = $_POST['like_status'] ?? '';
+
+if (
+    !$user_id ||
+    !ctype_digit((string)$postId) ||
+    !ctype_digit((string)$commentId) ||
+    !in_array((string)$likeStatus, ['0', '1'], true)
+) {
+    http_response_code(400);
+    exit("Invalid data");
 }
- else {
-    echo "Invalid request method";
 
+try {
+
+    // Verify that the comment belongs to the post
+    $checkComment = $con->prepare(
+        "SELECT id FROM posters_commads
+         WHERE id = ? AND posterid = ?"
+    );
+    $checkComment->execute([$commentId, $postId]);
+
+    if (!$checkComment->fetch()) {
+        http_response_code(404);
+        exit("Comment not found");
+    }
+
+    // Add or remove the logged-in user's like
+if ((string)$likeStatus === '1') {
+
+    $stmt = $con->prepare(
+        "INSERT IGNORE INTO comment_likes
+         (comment_id, user_id)
+         VALUES (?, ?)"
+    );
+
+    $stmt->execute([$commentId, $user_id]);
+
+} else {
+
+    $stmt = $con->prepare(
+        "DELETE FROM comment_likes
+         WHERE comment_id = ? AND user_id = ?"
+    );
+
+    $stmt->execute([$commentId, $user_id]);
+}
+
+// Get the updated total count
+$countQuery = $con->prepare(
+    "SELECT COUNT(*)
+     FROM comment_likes
+     WHERE comment_id = ?"
+);
+
+$countQuery->execute([$commentId]);
+
+$count = (int)$countQuery->fetchColumn();
+
+// Return count and current user's like status
+echo json_encode([
+    'count' => $count,
+    'liked' => (int)$likeStatus
+]);
+
+exit;
+
+    // Count all users who liked this comment
+    $countQuery = $con->prepare(
+        "SELECT COUNT(*) FROM comment_likes
+         WHERE comment_id = ?"
+    );
+    $countQuery->execute([$commentId]);
+
+    echo $countQuery->fetchColumn() . "likes";
+
+} catch (PDOException $e) {
+    http_response_code(500);
+    error_log($e->getMessage());
+    echo "Database error";
 }
 ?>
