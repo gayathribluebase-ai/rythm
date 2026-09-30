@@ -69,26 +69,59 @@ $type=$_SESSION['title'] ?? '';
 <audio id="globalAudioPlayer"></audio>
 
 <script>
-  let currentPlayBtn = null;
-  const audioPlayer = document.getElementById('globalAudioPlayer');
+  
+let currentPlayBtn = null;
+const audioPlayer = document.getElementById('globalAudioPlayer');
+let currentSong = '';
 
-  function playSong(file, btn) {
-    if (audioPlayer.src.includes(file) && !audioPlayer.paused) {
+function playSong(file, btn) {
+
+    if (currentSong === file && !audioPlayer.paused) {
         audioPlayer.pause();
-        $(btn).html('<i class="fa fa-play"></i>');
-    } else {
-        if (currentPlayBtn) $(currentPlayBtn).html('<i class="fa fa-play"></i>');
-        audioPlayer.src = file;
-        audioPlayer.play();
-        $(btn).html('<i class="fa fa-pause"></i>');
-        currentPlayBtn = btn;
+        return;
     }
-  }
 
-  audioPlayer.onended = function() {
-    if (currentPlayBtn) $(currentPlayBtn).html('<i class="fa fa-play"></i>');
+    if (currentSong === file && audioPlayer.paused) {
+        audioPlayer.play();
+        return;
+    }
+
+    if (currentPlayBtn) {
+        $(currentPlayBtn).html('<i class="fa fa-play"></i>');
+    }
+
+    currentSong = file;
+    currentPlayBtn = btn;
+
+    audioPlayer.src = file;
+    audioPlayer.load();
+
+    audioPlayer.play().catch(function(error) {
+        console.log(error);
+        alert('Unable to play the song. Check the audio file path.');
+    });
+}
+
+audioPlayer.onplay = function() {
+    if (currentPlayBtn) {
+        $(currentPlayBtn).html('<i class="fa fa-pause"></i>');
+    }
+};
+
+audioPlayer.onpause = function() {
+    if (currentPlayBtn) {
+        $(currentPlayBtn).html('<i class="fa fa-play"></i>');
+    }
+};
+
+audioPlayer.onended = function() {
+    if (currentPlayBtn) {
+        $(currentPlayBtn).html('<i class="fa fa-play"></i>');
+    }
+
     currentPlayBtn = null;
-  };
+    currentSong = '';
+};
 
   function addSong() {
     $.post("/rythm/professional_singer/music/songs_add.php", function(data) {

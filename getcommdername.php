@@ -32,11 +32,11 @@ if (!$commenter_id || $commenter_id <= 0) {
 try {
 
     $stmt = $con->prepare("
-        SELECT user_name
-        FROM user_master
-        WHERE id = ?
-        LIMIT 1
-    ");
+    SELECT user_name
+    FROM user_master
+    WHERE users_id = ?
+    LIMIT 1
+");
 
     $stmt->execute([$commenter_id]);
 

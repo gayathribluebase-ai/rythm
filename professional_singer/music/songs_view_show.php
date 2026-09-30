@@ -140,8 +140,14 @@ $row = $sql_query->fetch(PDO::FETCH_ASSOC);
       <font size="5">SONGS View</font>
     </h3>
 	<div class="backbtn">
-            <a onclick="return back()" style="float: right;color:white" data-toggle="modal" class="btn btn-dark"><b>Back</b></a>
-			</div>
+    <button type="button"
+            onclick="showmusic()"
+            style="float: right;color:white"
+            class="btn btn-dark">
+        <b>Back</b>
+    </button>
+    
+</div>
   </div>
 
   <form role="form" name="" action="update.php" method="post" enctype="multipart/type">

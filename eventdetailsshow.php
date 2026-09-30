@@ -87,34 +87,62 @@ if ($amtsql) {
                     <?php
                     $id = $row['id'];
                     // Query the CORRECT table: addsongsinevent
-                    $sql1 = $con->query("SELECT * FROM `addsongsinevent` WHERE eventid='$id'");
-                    $hasSongs = false;
-                    if ($sql1 && $sql1->rowCount() > 0) {
-                        $cnt = 1;
-                        while ($row1 = $sql1->fetch(PDO::FETCH_ASSOC)) {
-                            if (!empty($row1['songslistid'])) {
-                                $songidStrings = $row1['songslistid'];
-                                $pairType = ucfirst($row1['pairtype'] ?? 'N/A');
-                                $pairNames = !empty($row1['pairname']) ? $row1['pairname'] : '-';
-                                
-                                // Get details for each song in this record
-                                $sql2 = $con->query("SELECT title FROM `song_master` WHERE id IN ($songidStrings)");
-                                while ($row2 = $sql2->fetch(PDO::FETCH_ASSOC)) {
-                                    $hasSongs = true;
-                                    echo "<tr>
-                                            <td class='ps-3'>{$cnt}</td>
-                                            <td><span class='badge bg-light text-pink border'>{$pairType}</span></td>
-                                            <td class='small text-muted'>{$pairNames}</td>
-                                            <td class='fw-bold'>".ucfirst(htmlspecialchars($row2['title']))."</td>
-                                          </tr>";
-                                    $cnt++;
-                                }
-                            }
-                        }
-                    }
-                    if (!$hasSongs) {
-                        echo "<tr><td colspan='4' class='text-center text-muted p-3'>No songs assigned to this event</td></tr>";
-                    }
+                    
+$sql1 = $con->prepare(
+    "SELECT * FROM addsongsinevent WHERE eventid = ?"
+);
+$sql1->execute([$id]);
+
+$hasSongs = false;
+$cnt = 1;
+
+while ($row1 = $sql1->fetch(PDO::FETCH_ASSOC)) {
+
+    if (empty($row1['songslistid'])) {
+        continue;
+    }
+
+    $songIds = array_filter(
+        array_map('intval', explode(',', $row1['songslistid']))
+    );
+
+    if (empty($songIds)) {
+        continue;
+    }
+
+    $placeholders = implode(',', array_fill(0, count($songIds), '?'));
+
+    $sql2 = $con->prepare(
+        "SELECT title FROM song_master WHERE id IN ($placeholders)"
+    );
+    $sql2->execute(array_values($songIds));
+
+    $pairType = ucfirst($row1['pairtype'] ?? 'N/A');
+    $pairNames = $row1['pairname'] ?? '-';
+
+    while ($row2 = $sql2->fetch(PDO::FETCH_ASSOC)) {
+
+        $hasSongs = true;
+
+        echo "<tr>
+                <td class='ps-3'>{$cnt}</td>
+                <td>" . htmlspecialchars($pairType) . "</td>
+                <td class='small text-muted'>" . htmlspecialchars($pairNames) . "</td>
+                <td class='fw-bold'>" . htmlspecialchars(ucfirst($row2['title'])) . "</td>
+              </tr>";
+
+        $cnt++;
+    }
+}
+
+if (!$hasSongs) {
+    echo "<tr>
+            <td colspan='4' class='text-center text-muted p-3'>
+                No songs assigned to this event
+            </td>
+          </tr>";
+}
+
                     ?>
                 </tbody>
             </table>
