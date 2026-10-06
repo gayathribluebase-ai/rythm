@@ -128,9 +128,18 @@ width:120px;
             <div  class="card card-pink" style="width:160vh;margin-left:-125px;">
               <div class="card-header">
                 <h3 class="card-title"><font size="5"><b>EVENTS LIST</b></font></h3>
-			 </div>
-               <br>
-			   <div class="form-group" style="display:flex;justify-content:flex-end;">
+        </div>
+<br>
+
+<button type="button "onclick="showevent()"
+            style="background:#ff1493; color:white; border:none;
+                   padding:6px 12px; border-radius:15px;
+                   font-size:13px; width:auto; display:inline-block;">
+        <i class="fa fa-plus"></i> Add Event
+    </button>
+    <br>
+
+                <div class="form-group" style="display:flex;justify-content:flex-end;">
 
                         <label for="searchTitle">Search Title:</label>
                         <input type="text" class="form-control" id="searchTitle" placeholder="Enter title" oninput="searchByTitle();" style="width:197px; margin-top:-9px;">
@@ -392,6 +401,18 @@ function showevtndetails(id)
 	
 }
 
+function openEventManagement() {
+    var rightcontent = $("#rightcontent").hide();
+
+    $.ajax({
+        type: "GET",
+        url: "/rythm/professional_singer/addevent.php",
+        success: function(data) {
+            $("#centerconteid").css("marginLeft", "450px");
+            $("#centerconteid").html(data);
+        }
+    });
+}
 
   </script>
 </body>
