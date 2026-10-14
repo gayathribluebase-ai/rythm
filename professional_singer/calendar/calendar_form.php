@@ -189,9 +189,12 @@ width:120px;
                                         <td onclick="showevtndetails(<?php echo $index['id']; ?>);"><?php echo $index['title']; ?></td>
                                         <td><?php echo $index['organizer']; ?></td>
 										<td>
-										<a href="#" onclick="eventlisshow(<?php echo $index['id']; ?>)">
-                                                <img src="/rythm/assets/eyeicnn.png" alt="Postpone Icon" style="height:40px;width:40px;">
-                                            </a>
+										<<a href="javascript:void(0);"
+   onclick="showevtndetails(<?php echo (int)$index['id']; ?>); return false;">
+    <img src="/rythm/assets/eyeicnn.png"
+         alt="View Details"
+         style="height:40px;width:40px;">
+</a>
 										</td>
                                         <td onclick="paydetails(<?php echo $index['id']; ?>);"><?php echo $index['amount']; ?></td>
 										<?php
@@ -221,10 +224,13 @@ width:120px;
 										?>
                                        
                                         <td>
-                                            <a onclick="loadEditPage(<?php echo $index['id']; ?>)" style="margin-right:5px;">
-                                             <img src="/rythm/assets/edit2.png" alt="Edit Icon" style="height: 27px; width: 27px;">
-                                                 </a>
-
+                                            <a href="javascript:void(0);"
+onclick="alert('Eye icon clicked!'); return false;"
+       style="margin-right:5px; cursor:pointer; display:inline-block;">
+    <img src="/rythm/assets/edit2.png"
+         alt="Edit Icon"
+         style="height:27px; width:27px; cursor:pointer;">
+</a>
                                             <a href="#" onclick="confirmDelete(<?php echo $index['id']; ?>, '<?php echo $index['title']; ?>')" style="margin-right:5px;">
                                                 <img src="/rythm/assets/minusss.png" alt="Delete Icon" style="height: 25px; width: 25px;">
                                             </a>
@@ -282,72 +288,74 @@ width:120px;
             }
         }
 		
-function loadEditPage(id)
-{
-    var rightcontent=$("#rightcontent").hide();
-	$.ajax({
-    type:"POST",
-    url:"/rythm/scheduleedit.php?id=" + id,
-    success:function(data){
-		
-               $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
-    }
-  })
-	
+
+function loadEditPage(id) {
+    $.ajax({
+        type: "POST",
+        url: "/rythm/scheduleedit.php?id=" + id,
+        success: function(data) {
+            var container = $("#centerconteid");
+
+            if (container.length === 0) {
+                container = $(".container").first();
+            }
+
+            container.html(data);
+            container.css({
+                "margin-left": "auto",
+                "margin-right": "auto"
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Edit form failed:", error);
+            console.error(xhr.responseText);
+        }
+    });
 }
 
 
-function showPostponeModal(id)
-{
-	//debugger;
-	//alert('jijiij');
-    var rightcontent=$("#rightcontent").hide();
-	$.ajax({
-    type:"POST",
-    url:"/rythm/posponetevents.php?id=" + id,
-    success:function(data){
-		
-    //   $("#main_content").html(data);
-               $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
 
-    }
-  })
-	
+function loadEventPage(url, id, method = "GET") {
+    $.ajax({
+        type: method,
+        url: url,
+        data: { id: id },
+        success: function(data) {
+            var container = $("#centerconteid");
+
+            if (container.length === 0) {
+                console.error("Page container #centerconteid not found.");
+                return;
+            }
+
+            container.html(data);
+            container.css({
+                "margin-left": "auto",
+                "margin-right": "auto"
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Event page loading failed:", error);
+            console.error("HTTP status:", xhr.status);
+            console.error("Server response:", xhr.responseText);
+            alert("Unable to load this page. Please check the Console.");
+        }
+    });
 }
-function addsongs(id)
-{
-	//debugger;
-	//alert('jijiij');
-    var rightcontent=$("#rightcontent").hide();
-	$.ajax({
-    type:"POST",
-    url:"/rythm/addsongsconcept.php?id="+id,
-    success:function(data){
-		
-    //  $("#main_content").html(data);
-               $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
-    }
-  })
-	
+
+
+function showPostponeModal(id) {
+    loadEventPage("/rythm/posponetevents.php", id, "POST");
 }
-function eventlisshow(id)
-{
-	//alert("priya:"+id);
-    var rightcontent=$("#rightcontent").hide();
-	$.ajax({
-            type:"GET",
-            url:"/rythm/eventlisshowintable.php?id="+id,
-             success:function(data){
-                $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
-            // $("#main_content").html(data);
-    }
-  })
+
+function addsongs(id) {
+    loadEventPage("/rythm/addsongsconcept.php", id, "POST");
 }
-  
+
+function showevtndetails(id) {
+    loadEventPage("/rythm/eventdetailsshow.php", id, "GET");
+}
+
 
 function paydetails(id)
 {
@@ -382,23 +390,32 @@ function receivedpaydetails(id)
 	
 }
 
+    $.ajax({
+        type: "GET",
+        url: "/rythm/eventdetailsshow.php?id=" + encodeURIComponent(id),
 
+        success: function(data) {
+            console.log("Event details response received:", data);
 
-function showevtndetails(id)
-{
-	//debugger;
-	///alert('jijiij');
-    var rightcontent=$("#rightcontent").hide();
-	$.ajax({
-    type:"GET",
-    url:"/rythm/eventdetailsshow.php?id="+id,
-    success:function(data){
-        $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
-    //  $("#main_content").html(data);
-    }
-  })
-	
+            var container = $("#centerconteid");
+
+            if (container.length === 0) {
+                console.error("#centerconteid not found on the page.");
+                return;
+            }
+
+            container.css("margin-left", "450px");
+            container.html(data);
+        },
+
+        error: function(xhr, status, error) {
+            console.error("Event details request failed:", error);
+            console.error("HTTP status:", xhr.status);
+            console.error("Server response:", xhr.responseText);
+
+            alert("Unable to load event details. Check Console.");
+        }
+    });
 }
 
 function openEventManagement() {

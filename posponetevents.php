@@ -2,7 +2,13 @@
 <html lang="en">
  <style>
 
-       
+echo "var meetingDate = " . json_encode($index['date']) . ";";
+echo "var meetingTime = " . json_encode(date('H:i', strtotime($index['time']))) . ";";
+echo "var meetingTitle = " . json_encode($index['title']) . ";";
+echo "var meetingOrganizer = " . json_encode($index['organizer']) . ";";
+echo "var meetingAmount = " . json_encode($index['amount']) . ";";
+echo "var meetingSongs = " . json_encode($index['songs'] ?? '') . ";";
+echo "var meetingDescription = " . json_encode($index['description'] ?? '') . ";";       
 		
   .form-group input[type="checkbox"] {
     margin-left:25px;
@@ -109,28 +115,57 @@ text-align: center;
         <?php
              require("./connect.php");
 			$id=$_REQUEST['id'];
-            $query = $con->query("select * from `daily_event` where id='$id'");
-			//$time=$eventdata['time'];
-			
-        ?>
+
+            $query = $con->prepare("SELECT * FROM `daily_event` WHERE id = ?");
+$query->execute([$id]);
+$index = $query->fetch(PDO::FETCH_ASSOC);
+?>
+
+        
 		    <input type="hidden" id="conceptid" name="conceptid" value="<?php echo $id;?>">
 
         <div class="container">
             <div  class="card card-pink">
               <div class="card-header">
                 <h3 class="card-title"><font size="5"><b>EVENT POSPONET  </b></font></h3>
-				<a onclick="return_back()" style="float:right;margin-top:-5px;background:lightyellow;color:black" data-toggle="modal" class="btn btn-danger"></i>Back</a>
+				<button type="button" id="postponeBackBtn"
+        class="btn btn-danger"
+        style="float:right;margin-top:-5px;background:lightyellow;color:black"
+        onclick="return_back()">
+    Back
+</button>
             </div>
 	<div style="margin:0 21px;">
-    <p id="detailsname" style="font-size:20px;">Date: <span id="meeting-date">[Meeting Date]</span></p><br>
-    <p style="font-size:20px;">Time: <span id="meeting-time">[Meeting Time]</span></p><br>
-    <p style="font-size:20px;">Title: <span id="meeting-title">[Meeting Title]</span></p><br>
-	<p style="font-size:20px;">Organizer: <span id="meeting-organizer">[Meeting organizer]</span></p><br>
-	<p style="font-size:20px;">Amount: <span id="meeting-amount">[Meeting amount]</span></p><br>
-	<p style="font-size:20px;">Songs: <span id="meeting-songs">[Meeting songs]</span></p><br>
-	<p style="font-size:20px;">Description: <span id="meeting-description">[Meeting description]</span></p><br>
+    <p id="detailsname" style="font-size:20px;">
+    Date: <span id="meeting-date"><?= htmlspecialchars($index['date'] ?? '') ?></span>
+</p><br>
+    
+<p style="font-size:20px;">Time:
+    <span id="meeting-time"><?= htmlspecialchars(date('H:i', strtotime($index['time'] ?? '00:00'))) ?></span>
+</p>
+
+<p style="font-size:20px;">Title:
+    <span id="meeting-title"><?= htmlspecialchars($index['title'] ?? '') ?></span>
+</p>
+
+<p style="font-size:20px;">Organizer:
+    <span id="meeting-organizer"><?= htmlspecialchars($index['organizer'] ?? '') ?></span>
+</p>
+
+<p style="font-size:20px;">Amount:
+    <span id="meeting-amount"><?= htmlspecialchars($index['amount'] ?? '') ?></span>
+</p>
+
+<p style="font-size:20px;">Songs:
+    <span id="meeting-songs"><?= htmlspecialchars($index['songs'] ?? '') ?></span>
+</p>
+
+<p style="font-size:20px;">Description:
+    <span id="meeting-description"><?= htmlspecialchars($index['description'] ?? '') ?></span>
+</p>
+
 	 <label for="time" id="labelllll" style="display:none;color:red;font-size:red;font-weight:600;">You Can't Modify This</label>
-    <h4 id="changeDateHeader" style="color:goldenrod;font-weight:600;">Change Date Here <img src="/neha/assets/downnn.png" style="height:30px;width:30px;"></h4><br>
+    <h4 id="changeDateHeader" style="color:goldenrod;font-weight:600;">Change Date Here <img src="/rythm/assets/downnn.png" style="height:30px;width:30px;"></h4><br>
        <div style="display:flex;">
 	   <div class="form-group">
                 <label for="date" id="datelavel">Date:</label>
@@ -142,85 +177,87 @@ text-align: center;
                 <input type="time" id="time" name="time">
             </div>
    </div>
-     <button id="posponedButton" type="submit"  onclick="posponeddfun();">Posponed</button>
+     <button id="posponedButton" type="button" onclick="posponeddfun();">
+    Posponed
+</button>
        <br>
         </div>
 		</div>
  </div>
     </form>
 
-    <script>
-     <?php $index = $query->fetch(PDO::FETCH_ASSOC);
-if($index!='')
-{
-	echo "var meetingDate = '" . $index['date'] . "';";
-    echo "var meetingTime = '" . date('H:i', strtotime($index['time'])) . "';";
-    echo "var meetingTitle = '" . $index['title'] . "';";
-    echo "var meetingOrganizer = '" . $index['organizer'] . "';";
-    echo "var meetingAmount = '" . $index['amount'] . "';";
-    echo "var meetingSongs = '" . $index['songs'] . "';";
-    echo "var meetingDescription = '" . $index['description'] . "';";
-
- ?>
- 
-    // Example: Update meeting details dynamically (replace this with your actual logic)
-    document.getElementById('meeting-date').textContent = '<?php echo $index['date']?>';
-    document.getElementById('meeting-time').textContent = '<?php echo date('H:i', strtotime($index['time']))?>';
-    document.getElementById('meeting-title').textContent = '<?php echo $index['title']?>';
-    document.getElementById('meeting-organizer').textContent = '<?php echo $index['organizer']?>';
-    document.getElementById('meeting-amount').textContent = '<?php echo $index['amount']?>';
-    document.getElementById('meeting-songs').textContent = '<?php echo $index['songs']?>';
-    document.getElementById('meeting-description').textContent = '<?php echo $index['description']?>';
-         // Check if date and time are in the past
-        var currentDate = new Date().toISOString().split('T')[0];
-        var currentTime = new Date().toTimeString().split(' ')[0];
-        var originalDateTime = meetingDate + ' ' + meetingTime;
-
-        if (meetingDate < currentDate) {
-            document.getElementById('changeDateHeader').style.display = 'none';
-            document.getElementById('date').style.display = 'none';
-            document.getElementById('time').style.display = 'none';
-			 document.getElementById('datelavel').style.display = 'none';
-			  document.getElementById('timelavel').style.display = 'none';
-            document.getElementById('posponedButton').style.display = 'none';
-			 document.getElementById('labelllll').style.display = 'block';
-        }
-		
-<?php
-}
-?>
-</script>
-<script src="path/to/jquery.min.js"></script>
+    
 <script>
-       function return_back()
-	   {
-        var rightcontent=$("#rightcontent").hide();
+       
+function return_back() {
+    $.ajax({
+        type: "GET",
+        url: "/rythm/professional_singer/calendar/calendar_form.php",
+        success: function(data) {
+            var container = $("#centerconteid");
 
-		   $.ajax({
-            type:"GET",
-            url:"/rythm/professional_singer/calendar/calendar_form.php",
-             success:function(data){
-		        // $("#main_content").html(data);
-                $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
-              }
-             })
-	   }
-function posponeddfun() {
-	debugger;
+            if (container.length === 0) {
+                container = $(".container").first();
+            }
+
+            if (container.length > 0) {
+                container.html(data);
+                container.css({
+                    "margin-left": "auto",
+                    "margin-right": "auto"
+                });
+            } else {
+                console.error("Event List container not found.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Back navigation failed:", error);
+            console.error("HTTP status:", xhr.status);
+            console.error("Response:", xhr.responseText);
+        }
+    });
+}
+
+
+function posponeddfun() {    
+
     var conceptid = $('#conceptid').val();
     var date = $('#date').val();
     var time = $('#time').val();
 
     
-   $.ajax({
-        type:"POST",
-        url:'/rythm/datetimechange.php',
+var meetingDate = $('#meeting-date').text().trim();
+var meetingTime = $('#meeting-time').text().trim();
+var meetingTitle = $('#meeting-title').text().trim();
+var meetingOrganizer = $('#meeting-organizer').text().trim();
+var meetingAmount = $('#meeting-amount').text().trim();
+var meetingSongs = $('#meeting-songs').text().trim();
+var meetingDescription = $('#meeting-description').text().trim();
+
+
+    console.log("Concept ID:", conceptid);
+    console.log("New date:", date);
+    console.log("New time:", time);
+    console.log("Original meeting:", {
+        date: meetingDate,
+        time: meetingTime,
+        title: meetingTitle,
+        organizer: meetingOrganizer,
+        amount: meetingAmount,
+        songs: meetingSongs,
+        description: meetingDescription
+    });
+    
+    console.log("Submitting postpone request...");
+
+    $.ajax({
+        type: "POST",
+        url: "/rythm/datetimechange.php",
         data: {
             conceptid: conceptid,
             date: date,
             time: time,
-            originalDate: meetingDate, // Pass the original values to the server
+            originalDate: meetingDate,
             originalTime: meetingTime,
             originalTitle: meetingTitle,
             originalOrganizer: meetingOrganizer,
@@ -228,34 +265,33 @@ function posponeddfun() {
             originalSongs: meetingSongs,
             originalDescription: meetingDescription
         },
-        success: function (data) {
-			//console.warn("huhuhuhuhuhu:"+data);
-           if(data==0)
-			{
-				alert('Postponed Events successful');
-				 window.location.assign("/rythm/homee.php");
-			}
-			else if(data==1)
-			{
-				alert('Something went wrong');
-				 window.location.assign("/rythm/homee.php");
-			}
-			else if(data==2)
-			{
-				alert('Cannot update to a past date and time');
-				 window.location.assign("/rythm/homee.php");
-			}
-			else if(data==3)
-			{
-				alert('Please choose date and time!');
-				 window.location.assign("/rythm/homee.php");
-			}
-           
+        success: function(data) {
+            console.log("Server response:", data);
+
+            if (data == 0) {
+                alert("Postponed Events successful");
+                window.location.assign("/rythm/home.php");
+            } else if (data == 1) {
+                alert("Something went wrong");
+            } else if (data == 2) {
+                alert("Cannot update to a past date and time");
+            } else if (data == 3) {
+                alert("Please choose date and time!");
+            } else {
+                alert("Unexpected server response. Check Console.");
+            }
         },
         
+error: function(xhr, status, error) {
+    console.error("Postpone request failed:", error);
+    console.error("HTTP status:", xhr.status);
+    console.error("Server response:", xhr.responseText);
+
+    alert("Postpone failed. Check the Console for details.");
+}
+
     });
 }
-	   
 	
     </script>
 </body>

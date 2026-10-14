@@ -155,7 +155,7 @@ while ($index = $query->fetch(PDO::FETCH_ASSOC)) {
 <br>
             
 
-            <button type="update" class="updateee">Update</button> <br> <br>
+            <button type="submit" class="updateee">Update</button> <br> <br>
 		</div>
  </div>
   <br> <br>
@@ -164,21 +164,32 @@ while ($index = $query->fetch(PDO::FETCH_ASSOC)) {
   <?php
 }
 ?> 
-<script src="path/to/jquery.min.js"></script>
 <script>
-       function return_back()
-	   {
-      var rightcontent=$("#rightcontent").hide();
+       
+function return_back() {
+    $.ajax({
+        type: "GET",
+        url: "/rythm/professional_singer/calendar/calendar_form.php",
+        success: function(data) {
+            var container = $("#centerconteid");
 
-		   $.ajax({
-            type:"GET",
-            url:"/rythm/professional_singer/calendar/calendar_form.php",
-             success:function(data){
-              $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);         
-                   }
-             })
-	   }
+            if (container.length === 0) {
+                container = $(".container").first();
+            }
+
+            container.css({
+                "margin-left": "auto",
+                "margin-right": "auto"
+            });
+
+            container.html(data);
+        },
+        error: function(xhr, status, error) {
+            console.error("Back navigation failed:", error);
+            console.error(xhr.responseText);
+        }
+    });
+}
 
     </script>
 </body>

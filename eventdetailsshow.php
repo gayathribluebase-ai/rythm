@@ -30,9 +30,13 @@ if ($amtsql) {
         <h4 class="card-title mb-0 fw-bold text-pink">
             <i class="fa fa-info-circle me-2"></i>Event Details
         </h4>
-        <button onclick="showevent()" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-            <i class="fa fa-arrow-left me-1"></i> Back
-        </button>
+        
+<button type="button"
+        onclick="showevent()"
+        class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+    <i class="fa fa-arrow-left me-1"></i> Back
+</button>
+
     </div>
 
     <div class="card-body p-4">

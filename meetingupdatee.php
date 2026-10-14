@@ -15,8 +15,8 @@ $sql = $con->query("UPDATE `daily_event` SET `date`='$date',`time`='$time',`titl
 
 if ($sql != '') {
        // echo 'ifff';
-        echo "<script>alert('update successfully')</script>";
-        echo "<script>window.location.href='/rythm/homee.php';</script>";
+        echo "<script>alert('Updated Successfully')</script>";
+        echo "<script>window.location.href='/rythm/home.php';</script>";
         exit;
     } 
 	else {
