@@ -149,6 +149,10 @@ include("includes/header.php");
                         <i class="fa-solid fa-volume-xmark"></i>
                     </button>
 
+                    <?php include("includes/header.php"); ?>
+
+                    <?php include("includes/right_panel.php"); ?>
+
                 <?php endif; ?>
 
             </div>

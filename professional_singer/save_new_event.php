@@ -45,6 +45,7 @@ exit;
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +93,10 @@ exit;
     </style>
 </head>
 <body>
-    <div class="event-form">
+
+<?php include("../includes/header.php"); ?>
+
+    <div class="event-form" style="margin-left: 250px; margin-top: 80px;">
         <h2>Create New Event</h2>
 
         <?php if ($message !== ""): ?>
