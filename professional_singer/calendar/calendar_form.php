@@ -131,6 +131,17 @@ width:120px;
         </div>
 <br>
 
+<<<<<<< HEAD
+=======
+<button type="button "onclick="showevent()"
+            style="background:#ff1493; color:white; border:none;
+                   padding:6px 12px; border-radius:15px;
+                   font-size:13px; width:auto; display:inline-block;">
+        <i class="fa fa-plus"></i> Add Event
+    </button>
+    <br>
+
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
                 <div class="form-group" style="display:flex;justify-content:flex-end;">
 
                         <label for="searchTitle">Search Title:</label>
@@ -216,6 +227,7 @@ width:120px;
 										?>
                                        
                                         <td>
+<<<<<<< HEAD
 
                                         <a href="/rythm/professional_singer/save_new_event.php"
    title="Add New Event"
@@ -239,11 +251,19 @@ width:120px;
 <a href="javascript:void(0);"
    onclick="window.loadEditPage(<?php echo (int)$index['id']; ?>); return false;"
    style="margin-right:5px; cursor:pointer; display:inline-block;">
+=======
+                                            <a href="javascript:void(0);"
+onclick="alert('Eye icon clicked!'); return false;"
+       style="margin-right:5px; cursor:pointer; display:inline-block;">
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
     <img src="/rythm/assets/edit2.png"
          alt="Edit Icon"
          style="height:27px; width:27px; cursor:pointer;">
 </a>
+<<<<<<< HEAD
 
+=======
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
                                             <a href="#" onclick="confirmDelete(<?php echo $index['id']; ?>, '<?php echo $index['title']; ?>')" style="margin-right:5px;">
                                                 <img src="/rythm/assets/minusss.png" alt="Delete Icon" style="height: 25px; width: 25px;">
                                             </a>
@@ -302,6 +322,7 @@ width:120px;
         }
 		
 
+<<<<<<< HEAD
 
 window.loadEditPage = function(id) {
     console.log("Edit clicked. Event ID:", id);
@@ -329,6 +350,32 @@ window.loadEditPage = function(id) {
         }
     });
 };
+=======
+function loadEditPage(id) {
+    $.ajax({
+        type: "POST",
+        url: "/rythm/scheduleedit.php?id=" + id,
+        success: function(data) {
+            var container = $("#centerconteid");
+
+            if (container.length === 0) {
+                container = $(".container").first();
+            }
+
+            container.html(data);
+            container.css({
+                "margin-left": "auto",
+                "margin-right": "auto"
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Edit form failed:", error);
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
 
 
 function loadEventPage(url, id, method = "GET") {
@@ -337,10 +384,17 @@ function loadEventPage(url, id, method = "GET") {
         url: url,
         data: { id: id },
         success: function(data) {
+<<<<<<< HEAD
             var container = $("main.main-content");
 
             if (container.length === 0) {
                 console.error("Main content container not found.");
+=======
+            var container = $("#centerconteid");
+
+            if (container.length === 0) {
+                console.error("Page container #centerconteid not found.");
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
                 return;
             }
 
@@ -432,6 +486,10 @@ function receivedpaydetails(id)
             alert("Unable to load event details. Check Console.");
         }
     });
+<<<<<<< HEAD
+=======
+}
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
 
 function openEventManagement() {
     var rightcontent = $("#rightcontent").hide();

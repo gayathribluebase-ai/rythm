@@ -30,6 +30,11 @@ font-weight:500;
 }
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
 /* === BASE HEADING === */ 
 
 h1 {
