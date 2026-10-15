@@ -116,6 +116,38 @@ width:120px;
       overflow-x: auto;
       overflow-y: scroll; /* Add this line for vertical scrollbar */
     }
+
+    <style>
+    /* Your existing CSS — keep everything here */
+
+    /* Add this new CSS at the bottom */
+    .event-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 8px;
+        min-height: 45px;
+    }
+
+    .event-actions a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 30px;
+        width: 30px;
+        height: 45px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .event-actions img {
+        display: block;
+        width: 25px;
+        height: 25px;
+        object-fit: contain;
+    }
+</style>
     </style>
 <body>
     <form action="" method="post" autocomplete="off">
@@ -181,7 +213,7 @@ width:120px;
                                         <td onclick="showevtndetails(<?php echo $index['id']; ?>);"><?php echo $index['title']; ?></td>
                                         <td><?php echo $index['organizer']; ?></td>
 										<td>
-										<<a href="javascript:void(0);"
+										<a href="javascript:void(0);"
    onclick="showevtndetails(<?php echo (int)$index['id']; ?>); return false;">
     <img src="/rythm/assets/eyeicnn.png"
          alt="View Details"
@@ -345,11 +377,15 @@ function loadEventPage(url, id, method = "GET") {
             }
 
             container.html(data);
-            container.css({
-                "margin-left": "auto",
-                "margin-right": "auto"
-            });
-        },
+container.css({
+    "margin-left": "0",
+    "margin-right": "0",
+    "width": "100%",
+    "max-width": "100%",
+    "box-sizing": "border-box"
+});
+
+                    },
         error: function(xhr, status, error) {
             console.error("Event page loading failed:", error);
             console.error("HTTP status:", xhr.status);
@@ -382,8 +418,14 @@ function paydetails(id)
     type:"GET",
     url:"/rythm/conceptamypay.php?id="+id,
     success:function(data){
-        $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
+        $("main.main-content").html(data);
+$("main.main-content").css({
+    "margin-left": "0",
+    "margin-right": "0",
+    "width": "100%",
+    "max-width": "100%",
+    "box-sizing": "border-box"
+});
     //  $("#main_content").html(data);
     }
   })
@@ -398,8 +440,14 @@ function receivedpaydetails(id)
     type:"GET",
     url:"/rythm/receiveamtdetails.php?id="+id,
     success:function(data){
-        $("#centerconteid").css("marginLeft", "450px");
-                $("#centerconteid").html(data);
+        $("main.main-content").html(data);
+$("main.main-content").css({
+    "margin-left": "0",
+    "margin-right": "0",
+    "width": "100%",
+    "max-width": "100%",
+    "box-sizing": "border-box"
+});
     //  $("#main_content").html(data);
     }
   })

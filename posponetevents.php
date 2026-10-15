@@ -30,11 +30,6 @@ font-weight:500;
 }
 
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> b93e9a2da957229bc0dac5c951e58d496033d7d4
 /* === BASE HEADING === */ 
 
 h1 {
@@ -111,6 +106,56 @@ text-align: center;
 
 
 }
+
+
+/* Keep the postpone form inside the main content area */
+.card.card-pink {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.card.card-pink * {
+    box-sizing: border-box;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 20px;
+}
+
+.card-header .card-title {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.card.card-pink .form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.card.card-pink input[type="date"],
+.card.card-pink input[type="time"] {
+    width: 100%;
+    max-width: 100%;
+}
+
+@media (max-width: 600px) {
+    .card.card-pink .form-group > div {
+        margin-left: 0;
+    }
+
+    .card.card-pink .form-group {
+        width: 100%;
+    }
+}
+
 
     </style>
 <body>
@@ -192,31 +237,23 @@ $index = $query->fetch(PDO::FETCH_ASSOC);
     
 <script>
        
+
 function return_back() {
     $.ajax({
         type: "GET",
         url: "/rythm/professional_singer/calendar/calendar_form.php",
         success: function(data) {
-            var container = $("#centerconteid");
-
-            if (container.length === 0) {
-                container = $(".container").first();
-            }
+            const container = $("main.main-content");
 
             if (container.length > 0) {
                 container.html(data);
-                container.css({
-                    "margin-left": "auto",
-                    "margin-right": "auto"
-                });
             } else {
-                console.error("Event List container not found.");
+                alert("Events List container not found.");
             }
         },
-        error: function(xhr, status, error) {
-            console.error("Back navigation failed:", error);
-            console.error("HTTP status:", xhr.status);
-            console.error("Response:", xhr.responseText);
+        error: function(xhr) {
+            console.error(xhr.responseText);
+            alert("Unable to return to Events List.");
         }
     });
 }
