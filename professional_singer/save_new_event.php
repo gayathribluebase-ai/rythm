@@ -89,6 +89,28 @@ exit;
             cursor: pointer;
             font-size: 16px;
         }
+
+        
+.back-btn {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 12px;
+    padding: 12px;
+    background: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.back-btn:hover {
+    background: #e2e2e2;
+}
+
         .message { text-align: center; color: #b00050; }
     </style>
 </head>
@@ -140,6 +162,12 @@ exit;
        value="0" readonly>
 
             <button type="submit" class="save-btn">Save Event</button>
+
+            
+<a href="/rythm/home.php" class="back-btn">
+    ← Back to Events
+</a>
+            
         </form>
     </div>
 

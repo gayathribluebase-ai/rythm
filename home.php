@@ -289,6 +289,34 @@ include("includes/header.php");
 <script>
 
 
+
+window.loadEditPage = function(id) {
+    $.ajax({
+        type: "POST",
+        url: "/rythm/scheduleedit.php",
+        data: { id: id },
+
+        success: function(data) {
+            var container = $("main.main-content");
+
+            if (container.length === 0) {
+                console.error("Main content container not found.");
+                return;
+            }
+
+            container.html(data);
+        },
+
+        error: function(xhr, status, error) {
+            console.error("Edit form loading failed:", error);
+            console.error("Response:", xhr.responseText);
+            alert("Unable to load the edit form.");
+        }
+    });
+};
+
+
+
 function loadSearchProfile(userId) {
 
     $('#searchResultsDropdown').hide();
@@ -349,6 +377,7 @@ function showMuteOverlay(container, text) {
 <script>
     
     let currentPostId = null;
+    let currentParentCommentId = null;
     let shareModal = null;
 
     $(document).ready(function() {
@@ -428,39 +457,47 @@ function fetchComments(postId) {
     }); 
 }
 
-    $(document).on('click', '#postCommentBtn', function(e) {
-
+    $
+$(document).on('click', '#postCommentBtn', function (e) {
     e.preventDefault();
 
     const comment = $('#commentInput').val().trim();
 
-    if (comment === '') {
+    if (!comment) {
         alert('Please enter a comment');
         return;
     }
 
-    const alldata = currentPostId + "**" + "<?php echo $commder_id; ?>" + "**" + comment;
+    if (!currentPostId) {
+        alert('Please open a post first.');
+        return;
+    }
+
+    const alldata =
+        currentPostId + "**" +
+        "<?php echo (int)$commder_id; ?>" + "**" +
+        comment;
 
     $.post('/rythm/commandsinsert.php', {
-        alldata: alldata
+        alldata: alldata,
+        parent_comment_id: currentParentCommentId || ''
     })
-    .done(function(res) {
-
-        console.log("Comment response:", res);
-
-        if (String(res).trim() === "1") {
+    .done(function (res) {
+        if (String(res).trim() === '1') {
             $('#commentInput').val('');
+            $('#commentInput').attr('placeholder', 'Add a comment...');
+
+            currentParentCommentId = null;
+
             fetchComments(currentPostId);
         } else {
-            alert("Comment was not posted. Response: " + res);
+            alert('Comment was not posted: ' + res);
         }
-
     })
-    .fail(function(xhr) {
-        console.log("Comment error:", xhr.responseText);
-        alert("Error posting comment. Check Console.");
+    .fail(function (xhr) {
+        console.error('Comment error:', xhr.responseText);
+        alert('Error posting comment. Check Console.');
     });
-
 });
 
     $('.toggle-like').click(function() {
@@ -568,41 +605,64 @@ $(document).on('click', '.toggle-comment-like', function(e) {
     });
 });
 
-    $(document).on('click', '.toggle-save', function() {
-        const id = $(this).data('id');
-        const icon = $(this);
-        const isSaved = icon.hasClass('fa-solid');
+    
+$(document).on('click', '.toggle-comment-like', function () {
+    const button = $(this);
 
-        $.post('/rythm/save_post_action.php', { post_id: id }, function(response) {
-            if(response == "1") {
-                icon.removeClass('fa-regular').addClass('fa-solid');
-            } else if(response == "0") {
-                icon.removeClass('fa-solid').addClass('fa-regular');
-            }
-        });
+    if (button.data('busy')) return;
+    button.data('busy', true);
+
+    const commentId = button.data('id');
+    const postId = button.data('post-id');
+    const currentlyLiked = String(button.attr('data-status')) === '1';
+    const newStatus = currentlyLiked ? 0 : 1;
+
+    $.ajax({
+        url: '/rythm/updatelikestsforcmnders.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            commder_id: commentId,
+            post_id: postId,
+            like_status: newStatus
+        }
+    }).done(function (response) {
+        if (typeof response.count === 'undefined') {
+            alert('Could not update comment like.');
+            return;
+        }
+
+        button.attr('data-status', response.liked);
+        button.data('status', String(response.liked));
+
+        const heart = button.find('i');
+        if (Number(response.liked) === 1) {
+            heart.removeClass('fa-regular').addClass('fa-solid text-danger');
+        } else {
+            heart.removeClass('fa-solid text-danger').addClass('fa-regular');
+        }
+
+        const count = $('#comment-like-count-' + commentId);
+        count.text(Number(response.count) > 0 ? response.count : '');
+    }).fail(function (xhr) {
+        console.error('Comment like error:', xhr.responseText);
+        alert('Unable to update comment like. Please try again.');
+    }).always(function () {
+        button.data('busy', false);
     });
+});
+
 
 
 $(document).on('click', '.reply-comment-btn', function () {
+    currentParentCommentId = Number($(this).data('comment-id'));
 
     const username = $(this).data('username');
-
-    console.log("Reply clicked for:", username);
-
     const commentInput = $('#commentInput');
 
-    if (commentInput.length) {
-
-        commentInput.val('@' + username + ' ');
-        commentInput.focus();
-
-    } else {
-
-        console.log("commentInput not found");
-        alert("Comment box not found");
-
-    }
-
+    commentInput.val('@' + username + ' ');
+    commentInput.attr('placeholder', 'Write a reply...');
+    commentInput.focus();
 });
 
 </script>

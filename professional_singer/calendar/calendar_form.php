@@ -3,7 +3,7 @@
  <style>
  
  /* Style for the card */
-    .card {$query11 = $con->prepare("SELECT * FROM daily_event WHERE users_id = ? ORDER BY date DESC");
+    .card {
 
         border: 1px solid #dee2e6; /* Add border */
         border-radius: .25rem; /* Add border radius */
@@ -333,35 +333,6 @@ width:120px;
             }
         }
 		
-
-
-window.loadEditPage = function(id) {
-    console.log("Edit clicked. Event ID:", id);
-
-    $.ajax({
-        type: "POST",
-        url: "/rythm/scheduleedit.php",
-        data: { id: id },
-
-        success: function(data) {
-            var container = $("main.main-content");
-
-            if (container.length === 0) {
-                console.error("Main content container not found.");
-                return;
-            }
-
-            container.html(data);
-        },
-
-        error: function(xhr, status, error) {
-            console.error("Edit form loading failed:", error);
-            console.error(xhr.responseText);
-            alert("Unable to load the edit form.");
-        }
-    });
-};
-
 
 function loadEventPage(url, id, method = "GET") {
     $.ajax({
