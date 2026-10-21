@@ -13,7 +13,7 @@ session_start();
             box-shadow: 0 15px 45px rgba(0,0,0,0.1);
             border: 1px solid rgba(255, 128, 179, 0.15);
             margin: 30px auto;
-            max-width: 1100px; /* Increased width */
+            max-width: 500px; /* Increased width */
             width: 95%;
             min-height: 700px;
             transition: all 0.3s ease;

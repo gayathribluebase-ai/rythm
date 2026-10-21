@@ -7,7 +7,7 @@ require_once(__DIR__ . "/config.php");
 $login_user_id = $_SESSION['users_id'] ?? 0;
 ?>
 
-<aside class="right-panel d-none d-lg-block">
+<aside class="right-panel">
 
     <!-- Suggestions for You -->
     <div class="card border-0 shadow-sm rounded-4">
@@ -31,6 +31,9 @@ $login_user_id = $_SESSION['users_id'] ?? 0;
             )
         ");
         $sug_stmt->execute([$login_user_id, $login_user_id]);
+
+        echo "<!-- Logged-in user ID: " . (int)$login_user_id . " -->";
+        echo "<!-- Suggestions found: " . $sug_stmt->rowCount() . " -->";
 
         while($sug = $sug_stmt->fetch(PDO::FETCH_ASSOC)):
         ?>

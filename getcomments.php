@@ -107,14 +107,14 @@ $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </button>
 
                     <button
-                        type="button"
-                        class="fw-bold reply-comment-btn"
-                        data-username="<?= htmlspecialchars($username, ENT_QUOTES, 'UTF-8') ?>"
-                        style="border:0;background:none;padding:0;color:inherit;cursor:pointer;"
-                    >
-                        Reply
-                    </button>
-                </div>
+    type="button"
+    class="fw-bold reply-comment-btn"
+    data-comment-id="<?= (int)$row['id'] ?>"
+    data-username="<?= htmlspecialchars($username, ENT_QUOTES, 'UTF-8') ?>"
+    style="border:0;background:none;padding:0;color:inherit;cursor:pointer;"
+>
+    Reply
+</button>                </div>
             </div>
         </div>
 

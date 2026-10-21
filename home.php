@@ -24,29 +24,37 @@ include("includes/header.php");
     padding: 0 20px 20px 20px !important;
 }
 
+
+
 .home-layout {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) 300px !important;
-    gap: 30px !important;
-    width: 100% !important
-    max-width: none !important;
-    margin: 0 !important;
+    gap: 24px !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
     padding: 0 20px !important;
-    align-items: start;
+    align-items: start !important;
+    box-sizing: border-box !important;
 }
 
 .feed-area {
-    min-width: 0;
-    width: 100%;
+    grid-column: 1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
 }
 
 .home-suggestions {
     grid-column: 2 !important;
+    grid-row: 1 !important;
     width: 300px !important;
+    min-width: 0 !important;
     display: block !important;
     position: sticky !important;
     top: 10px !important;
+    align-self: start !important;
 }
+
 
 #centerconteid {
     width: 100%;
@@ -149,11 +157,7 @@ include("includes/header.php");
                         <i class="fa-solid fa-volume-xmark"></i>
                     </button>
 
-                    <?php include("includes/header.php"); ?>
-
-                    <?php include("includes/right_panel.php"); ?>
-
-                <?php endif; ?>
+                    <?php endif; ?>
 
             </div>
 
